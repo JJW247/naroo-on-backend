@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
 import { Users } from 'src/users/entities/users.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 enum LectureType {
   ONLINE = 'online',
@@ -76,6 +76,7 @@ export class Lectures extends Common {
   @Column('date')
   expiredAt: Date;
 
-  @OneToMany(() => Users, (users) => users.lectures)
-  teacherId: Users;
+  @ManyToOne(() => Users, (users) => users.lectures)
+  @JoinColumn()
+  teacher: Users;
 }

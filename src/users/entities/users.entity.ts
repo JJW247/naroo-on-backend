@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
 import { Lectures } from 'src/lectures/entities/lectures.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class Users extends Common {
@@ -34,7 +34,6 @@ export class Users extends Common {
   @Column('varchar')
   password: string;
 
-  @ManyToOne(() => Lectures, (lectures) => lectures.teacherId)
-  @JoinColumn()
+  @OneToMany(() => Lectures, (lectures) => lectures.teacher)
   lectures: Lectures[];
 }
