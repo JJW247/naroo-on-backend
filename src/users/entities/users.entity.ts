@@ -1,8 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
 import { Lectures } from 'src/lectures/entities/lectures.entity';
-import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+
+enum RoleType {
+  ADMIN = 'admin',
+  STUDENT = 'student',
+  TEACHER = 'teacher',
+}
 
 @Entity()
 export class Users extends Common {
@@ -33,6 +46,24 @@ export class Users extends Common {
   @IsNotEmpty()
   @Column('varchar')
   password: string;
+
+  @ApiProperty({
+    example: 'student',
+    description: '유저 타입',
+  })
+  @IsEnum(RoleType)
+  @IsOptional()
+  @Column('enum', { enum: RoleType, default: RoleType.STUDENT })
+  role: RoleType;
+
+  @ApiProperty({
+    example: '안녕하세요 노드 1타 강사 h662입니다.',
+    description: '강사 자기소개',
+  })
+  @IsString()
+  @IsOptional()
+  @Column('varchar')
+  introduce: string;
 
   @OneToMany(() => Lectures, (lectures) => lectures.teacher)
   lectures: Lectures[];
