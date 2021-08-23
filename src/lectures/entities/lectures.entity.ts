@@ -89,10 +89,6 @@ export class Lectures extends Common {
   @JoinColumn()
   teacher: Users;
 
-  @ManyToMany(() => Users)
-  @JoinTable({ name: 'user-lecture' })
-  users: Users[];
-
   @OneToMany(() => Reviews, (reviews) => reviews.lecture)
   reviews: Reviews[];
 }

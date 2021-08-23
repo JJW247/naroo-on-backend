@@ -1,0 +1,41 @@
+### Signup
+POST http://localhost:3010/auth/signup
+content-type: application/json
+
+{
+    "email" : "admin@admin.com",
+    "password" : "12341234",
+    "nickname" : "조정우",
+    "phone_number" : "01042195075"
+}
+
+### Signin
+POST http://localhost:3010/auth/signin
+content-type: application/json
+
+{
+    "email" : "admin@admin.com",
+    "password" : "12341234"
+}
+
+### Get the current user information
+Get http://localhost:3010/auth/me
+
+### Logout
+POST http://localhost:3010/auth/signout
+
+### Find a particular user with a given ID
+GET http://localhost:3010/auth/6
+
+### Find all users with a given email
+GET http://localhost:3010/auth?email=
+
+### Delete a user given id
+DELETE http://localhost:3010/auth/6
+
+### Update a user
+PATCH http://localhost:3010/auth/1453453
+content-type: application/json
+
+{
+}

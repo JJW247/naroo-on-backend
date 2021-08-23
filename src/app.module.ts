@@ -8,10 +8,13 @@ import { Users } from './users/entities/users.entity';
 import { Lectures } from './lectures/entities/lectures.entity';
 import { ConfigModule } from '@nestjs/config';
 import { Reviews } from './lectures/entities/reviews.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DATABASE_HOST,
@@ -25,6 +28,7 @@ import { Reviews } from './lectures/entities/reviews.entity';
     }),
     UsersModule,
     LecturesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

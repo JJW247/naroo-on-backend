@@ -62,7 +62,7 @@ export class Users extends Common {
   })
   @IsString()
   @IsOptional()
-  @Column('varchar')
+  @Column('varchar', { default: null })
   introduce: string;
 
   @OneToMany(() => Lectures, (lectures) => lectures.teacher)
