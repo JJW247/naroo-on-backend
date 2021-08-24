@@ -4,13 +4,17 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { LecturesModule } from './lectures/lectures.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from './users/entities/users.entity';
-import { Lectures } from './lectures/entities/lectures.entity';
+import { User } from './users/entities/user.entity';
+import { Lecture } from './lectures/entities/lecture.entity';
 import { ConfigModule } from '@nestjs/config';
-import { Reviews } from './lectures/entities/reviews.entity';
 import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
-import { UserLecture } from './lectures/entities/userLecture.entity';
+import { StudentLecture } from './lectures/entities/studentLecture.entity';
+import { LectureTag } from './lectures/entities/lectureTag.entity';
+import { Notice } from './lectures/entities/notice.entity';
+import { Question } from './lectures/entities/question.entity';
+import { Tag } from './lectures/entities/tag.entity';
+import { Video } from './lectures/entities/video.entity';
 
 @Module({
   imports: [
@@ -24,7 +28,16 @@ import { UserLecture } from './lectures/entities/userLecture.entity';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_DATABASE,
-      entities: [Users, Lectures, Reviews, UserLecture],
+      entities: [
+        User,
+        Lecture,
+        LectureTag,
+        Notice,
+        Question,
+        StudentLecture,
+        Tag,
+        Video,
+      ],
       synchronize: true,
       logging: true,
     }),

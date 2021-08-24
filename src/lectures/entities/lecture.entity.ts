@@ -8,10 +8,13 @@ import {
   IsUrl,
 } from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
-import { Users } from 'src/users/entities/users.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { Reviews } from './reviews.entity';
-import { UserLecture } from './userLecture.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { LectureTag } from './lectureTag.entity';
+import { Notice } from './notice.entity';
+import { Question } from './question.entity';
+import { StudentLecture } from './studentLecture.entity';
+import { Video } from './video.entity';
 
 enum LectureType {
   ONLINE = 'online',
@@ -19,7 +22,7 @@ enum LectureType {
 }
 
 @Entity()
-export class Lectures extends Common {
+export class Lecture extends Common {
   @ApiProperty({
     example: 'NestJS/ReactJS 트위터 클론 강의',
     description: '강의 제목',
@@ -78,13 +81,24 @@ export class Lectures extends Common {
   @Column('date')
   expiredAt: Date;
 
-  @ManyToOne(() => Users, (users) => users.teach_lectures)
-  @JoinColumn()
-  teacher: Users;
+  @ManyToOne(() => User, (user) => user.teachLectures)
+  teacher: User;
 
-  @OneToMany(() => UserLecture, (userLecture) => userLecture.user)
-  users: Users[];
+  @OneToMany(() => Video, (video) => video.lecture)
+  videos: Video[];
 
-  @OneToMany(() => Reviews, (reviews) => reviews.lecture)
-  reviews: Reviews[];
+  @OneToMany(() => StudentLecture, (studentLecture) => studentLecture.lecture)
+  studentLectures: StudentLecture[];
+
+  @OneToMany(() => Question, (question) => question.lecture)
+  questions: Question[];
+
+  @OneToMany(() => Notice, (notice) => notice.lecture)
+  notices: Notice[];
+
+  @OneToMany(() => LectureTag, (lectureTag) => lectureTag.lecture)
+  lectureTags: LectureTag[];
+
+  @OneToMany(() => LectureTag, (lectureTag) => lectureTag.tag)
+  tags: [];
 }

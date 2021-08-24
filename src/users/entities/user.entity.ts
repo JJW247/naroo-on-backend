@@ -8,9 +8,9 @@ import {
   Length,
 } from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
-import { Lectures } from 'src/lectures/entities/lectures.entity';
-import { Reviews } from 'src/lectures/entities/reviews.entity';
-import { UserLecture } from 'src/lectures/entities/userLecture.entity';
+import { Lecture } from 'src/lectures/entities/lecture.entity';
+import { Question } from 'src/lectures/entities/question.entity';
+import { StudentLecture } from 'src/lectures/entities/studentLecture.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
 const ROLE_TYPE = {
@@ -22,7 +22,7 @@ const ROLE_TYPE = {
 export type ROLE_TYPE = typeof ROLE_TYPE[keyof typeof ROLE_TYPE];
 
 @Entity()
-export class Users extends Common {
+export class User extends Common {
   @ApiProperty({
     example: 'h662hong@gmail.com',
     description: '이메일 주소',
@@ -69,12 +69,15 @@ export class Users extends Common {
   @Column('varchar', { default: null })
   introduce: string;
 
-  @OneToMany(() => Lectures, (lectures) => lectures.teacher)
-  teach_lectures: Lectures[];
+  @OneToMany(() => StudentLecture, (studentLecture) => studentLecture.user)
+  studentLectures: StudentLecture[];
 
-  @OneToMany(() => UserLecture, (userLecture) => userLecture.lecture)
-  learn_lectures: Lectures[];
+  @OneToMany(() => Lecture, (lecture) => lecture.teacher)
+  teachLectures: Lecture[];
 
-  @OneToMany(() => Reviews, (reviews) => reviews.lecture)
-  reviews: Reviews[];
+  @OneToMany(() => Question, (question) => question.student)
+  questions: Question[];
+
+  @OneToMany(() => Question, (question) => question.teacher)
+  answers: Question[];
 }
