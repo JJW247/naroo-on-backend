@@ -19,9 +19,12 @@ export class UsersController {
     return await this.usersService.signIn(signInDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('/me')
+  @UseGuards(JwtAuthGuard)
   async getMe(@Req() req: Request) {
-    return this.usersService.getMe(req);
+    const user = await this.usersService.getMe(+req.user);
+    return user
+      ? { userId: user.id, role: user.role }
+      : { userId: null, role: null };
   }
 }

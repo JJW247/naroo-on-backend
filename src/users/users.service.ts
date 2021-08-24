@@ -60,13 +60,20 @@ export class UsersService {
       );
     }
 
-    // 토큰 생성
     const token = this.jwtService.sign({ id: user.id });
 
     return { token };
   }
 
-  async getMe(req: Request) {
-    return { userId: req.user };
+  getMe(id: number) {
+    if (!id) {
+      return null;
+    }
+    return this.usersRepository.findOne({
+      where: {
+        id,
+      },
+      select: ['id', 'role'],
+    });
   }
 }

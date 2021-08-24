@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -9,6 +9,8 @@ import { Lectures } from './lectures/entities/lectures.entity';
 import { ConfigModule } from '@nestjs/config';
 import { Reviews } from './lectures/entities/reviews.entity';
 import { AuthModule } from './auth/auth.module';
+import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { UserLecture } from './lectures/entities/userLecture.entity';
 
 @Module({
   imports: [
@@ -22,7 +24,7 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_DATABASE,
-      entities: [Users, Lectures, Reviews],
+      entities: [Users, Lectures, Reviews, UserLecture],
       synchronize: true,
       logging: true,
     }),
@@ -33,4 +35,8 @@ import { AuthModule } from './auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

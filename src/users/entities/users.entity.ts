@@ -9,13 +9,17 @@ import {
 } from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
 import { Lectures } from 'src/lectures/entities/lectures.entity';
+import { Reviews } from 'src/lectures/entities/reviews.entity';
+import { UserLecture } from 'src/lectures/entities/userLecture.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
-enum RoleType {
-  ADMIN = 'admin',
-  STUDENT = 'student',
-  TEACHER = 'teacher',
-}
+const ROLE_TYPE = {
+  ADMIN: 'admin',
+  STUDENT: 'student',
+  TEACHER: 'teacher',
+} as const;
+
+export type ROLE_TYPE = typeof ROLE_TYPE[keyof typeof ROLE_TYPE];
 
 @Entity()
 export class Users extends Common {
@@ -51,10 +55,10 @@ export class Users extends Common {
     example: 'student',
     description: '유저 타입',
   })
-  @IsEnum(RoleType)
+  @IsEnum(ROLE_TYPE)
   @IsOptional()
-  @Column('enum', { enum: RoleType, default: RoleType.STUDENT })
-  role: RoleType;
+  @Column('enum', { enum: ROLE_TYPE, default: ROLE_TYPE.STUDENT })
+  role: ROLE_TYPE;
 
   @ApiProperty({
     example: '안녕하세요 노드 1타 강사 h662입니다.',
@@ -66,5 +70,11 @@ export class Users extends Common {
   introduce: string;
 
   @OneToMany(() => Lectures, (lectures) => lectures.teacher)
-  lectures: Lectures[];
+  teach_lectures: Lectures[];
+
+  @OneToMany(() => UserLecture, (userLecture) => userLecture.lecture)
+  learn_lectures: Lectures[];
+
+  @OneToMany(() => Reviews, (reviews) => reviews.lecture)
+  reviews: Reviews[];
 }

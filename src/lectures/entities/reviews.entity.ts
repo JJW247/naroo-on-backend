@@ -33,6 +33,9 @@ export class Reviews extends Common {
   @Column('varchar')
   review: string;
 
-  @ManyToOne(() => Lectures, (lectures) => lectures.reviews)
+  @ManyToOne(() => Users, (users) => users.reviews, { primary: true })
+  user: Users;
+
+  @ManyToOne(() => Lectures, (lectures) => lectures.reviews, { primary: true })
   lecture: Lectures;
 }
