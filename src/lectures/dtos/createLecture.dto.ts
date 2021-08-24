@@ -1,0 +1,36 @@
+import {
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
+import { CONST_LECTURE_TYPE, LECTURE_TYPE } from '../entities/lecture.entity';
+
+export class CreateLectureDto {
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @IsEnum(CONST_LECTURE_TYPE)
+  @IsOptional()
+  type: LECTURE_TYPE;
+
+  @IsUrl()
+  @IsOptional()
+  thumbnail: string;
+
+  @IsArray()
+  @IsOptional()
+  images: string[];
+
+  @IsDate()
+  @IsOptional()
+  expiredAt: Date;
+}

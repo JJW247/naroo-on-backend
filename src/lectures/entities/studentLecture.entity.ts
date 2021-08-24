@@ -10,16 +10,17 @@ import {
   ManyToOne,
 } from 'typeorm';
 
-const LECTURE_STATUS = {
+export const CONST_LECTURE_STATUS = {
   APPLY: 'apply',
   REJECT: 'reject',
   INVISIBLE: 'invisible',
   VISIBLE: 'visible',
 } as const;
 
-export type LECTURE_STATUS = typeof LECTURE_STATUS[keyof typeof LECTURE_STATUS];
+export type LECTURE_STATUS =
+  typeof CONST_LECTURE_STATUS[keyof typeof CONST_LECTURE_STATUS];
 
-const RATING_TYPE = {
+const CONST_RATING_TYPE = {
   ONE: 1,
   TWO: 2,
   THREE: 3,
@@ -27,7 +28,8 @@ const RATING_TYPE = {
   FIVE: 5,
 } as const;
 
-export type RATING_TYPE = typeof RATING_TYPE[keyof typeof RATING_TYPE];
+export type RATING_TYPE =
+  typeof CONST_RATING_TYPE[keyof typeof CONST_RATING_TYPE];
 
 @Entity()
 export class StudentLecture {
@@ -62,18 +64,21 @@ export class StudentLecture {
     example: 'visible',
     description: '강의 현황',
   })
-  @IsEnum(LECTURE_STATUS)
+  @IsEnum(CONST_LECTURE_STATUS)
   @IsOptional()
-  @Column('enum', { enum: LECTURE_STATUS, default: LECTURE_STATUS.VISIBLE })
+  @Column('enum', {
+    enum: CONST_LECTURE_STATUS,
+    default: CONST_LECTURE_STATUS.VISIBLE,
+  })
   status: LECTURE_STATUS;
 
   @ApiProperty({
     example: 1,
     description: '강의 평점',
   })
-  @IsEnum(RATING_TYPE)
+  @IsEnum(CONST_RATING_TYPE)
   @IsOptional()
-  @Column('enum', { enum: RATING_TYPE, default: RATING_TYPE.FIVE })
+  @Column('enum', { enum: CONST_RATING_TYPE, default: CONST_RATING_TYPE.FIVE })
   rating: RATING_TYPE;
 
   @ApiProperty({

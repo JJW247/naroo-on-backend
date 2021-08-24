@@ -16,10 +16,13 @@ import { Question } from './question.entity';
 import { StudentLecture } from './studentLecture.entity';
 import { Video } from './video.entity';
 
-enum LectureType {
-  ONLINE = 'online',
-  OFFLINE = 'offline',
-}
+export const CONST_LECTURE_TYPE = {
+  ONLINE: 'online',
+  OFFLINE: 'offline',
+} as const;
+
+export type LECTURE_TYPE =
+  typeof CONST_LECTURE_TYPE[keyof typeof CONST_LECTURE_TYPE];
 
 @Entity()
 export class Lecture extends Common {
@@ -43,13 +46,13 @@ export class Lecture extends Common {
     example: 'online',
     description: '강의 타입 - 온라인 or 오프라인',
   })
-  @IsEnum(LectureType)
+  @IsEnum(CONST_LECTURE_TYPE)
   @IsOptional()
   @Column('enum', {
-    enum: LectureType,
-    default: LectureType.ONLINE,
+    enum: CONST_LECTURE_TYPE,
+    default: CONST_LECTURE_TYPE.ONLINE,
   })
-  type: LectureType;
+  type: LECTURE_TYPE;
 
   @ApiProperty({
     example: '아마존s3url을 입력해주세요 나중에 꼮',
@@ -57,8 +60,10 @@ export class Lecture extends Common {
   })
   @IsUrl()
   @IsOptional()
-  // 디폴트 값을 나중에 마포런 기본 썸네일 이미지 디폴드 넣기
-  @Column('varchar')
+  @Column('varchar', {
+    default:
+      'https://www.contentviewspro.com/wp-content/uploads/2017/07/default_image.png',
+  })
   thumbnail: string;
 
   @ApiProperty({
@@ -77,8 +82,7 @@ export class Lecture extends Common {
   })
   @IsDate()
   @IsOptional()
-  // 디폴트 값이 null 아닐경우 { default: null } 추가
-  @Column('date')
+  @Column('date', { default: null })
   expiredAt: Date;
 
   @ManyToOne(() => User, (user) => user.teachLectures)
