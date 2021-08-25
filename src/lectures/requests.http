@@ -3,8 +3,8 @@ POST http://localhost:3010/lecture/create
 content-type: application/json
 
 {
-    "title": "강의 4",
-    "description": "테스트용 강의 4번 입니다!"
+    "title": "강의 1",
+    "description": "테스트용 강의 1번 입니다!"
 }
 
 ### Approve an existing lecture

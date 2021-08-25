@@ -69,6 +69,7 @@ export class StudentLecture {
   @Column('enum', {
     enum: CONST_LECTURE_STATUS,
     default: CONST_LECTURE_STATUS.VISIBLE,
+    unique: true,
   })
   status: LECTURE_STATUS;
 
@@ -78,7 +79,11 @@ export class StudentLecture {
   })
   @IsEnum(CONST_RATING_TYPE)
   @IsOptional()
-  @Column('enum', { enum: CONST_RATING_TYPE, default: CONST_RATING_TYPE.FIVE })
+  @Column('enum', {
+    enum: CONST_RATING_TYPE,
+    default: CONST_RATING_TYPE.FIVE,
+    unique: true,
+  })
   rating: RATING_TYPE;
 
   @ApiProperty({
@@ -87,6 +92,6 @@ export class StudentLecture {
   })
   @IsString()
   @IsOptional()
-  @Column('varchar')
+  @Column('varchar', { unique: true })
   review: string;
 }

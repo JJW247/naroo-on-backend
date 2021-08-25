@@ -5,11 +5,19 @@ import { Tag } from './tag.entity';
 
 @Entity()
 export class LectureTag {
-  @ManyToOne(() => Lecture, (lecture) => lecture.lectureTags, { primary: true })
+  @ManyToOne(() => Lecture, (lecture) => lecture.lectureTags, {
+    primary: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  })
   @JoinColumn()
   lecture: Lecture;
 
-  @ManyToOne(() => Tag, (tag) => tag.lectureTags, { primary: true })
+  @ManyToOne(() => Tag, (tag) => tag.lectureTags, {
+    primary: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  })
   @JoinColumn()
   tag: Tag;
 

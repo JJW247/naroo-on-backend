@@ -13,13 +13,13 @@ import { Question } from 'src/lectures/entities/question.entity';
 import { StudentLecture } from 'src/lectures/entities/studentLecture.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
-const ROLE_TYPE = {
+export const CONST_ROLE_TYPE = {
   ADMIN: 'admin',
   STUDENT: 'student',
   TEACHER: 'teacher',
 } as const;
 
-export type ROLE_TYPE = typeof ROLE_TYPE[keyof typeof ROLE_TYPE];
+export type ROLE_TYPE = typeof CONST_ROLE_TYPE[keyof typeof CONST_ROLE_TYPE];
 
 @Entity()
 export class User extends Common {
@@ -55,9 +55,9 @@ export class User extends Common {
     example: 'student',
     description: '유저 타입',
   })
-  @IsEnum(ROLE_TYPE)
+  @IsEnum(CONST_ROLE_TYPE)
   @IsOptional()
-  @Column('enum', { enum: ROLE_TYPE, default: ROLE_TYPE.STUDENT })
+  @Column('enum', { enum: CONST_ROLE_TYPE, default: CONST_ROLE_TYPE.STUDENT })
   role: ROLE_TYPE;
 
   @ApiProperty({

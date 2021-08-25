@@ -3,13 +3,17 @@ import {
   IsDate,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUrl,
 } from 'class-validator';
-import { CONST_LECTURE_TYPE, LECTURE_TYPE } from '../entities/lecture.entity';
+import {
+  CONST_LECTURE_TYPE,
+  LECTURE_TYPE,
+} from '../../entities/lecture.entity';
 
-export class CreateLectureDto {
+export class RequestCreateLectureDto {
   @IsString()
   @IsNotEmpty()
   title: string;
@@ -33,4 +37,12 @@ export class CreateLectureDto {
   @IsDate()
   @IsOptional()
   expiredAt: Date;
+
+  @IsNumber()
+  @IsNotEmpty()
+  teacherId: number;
+
+  @IsArray()
+  @IsOptional()
+  tags: number[];
 }

@@ -9,7 +9,8 @@ import { Question } from './entities/question.entity';
 import { StudentLecture } from './entities/studentLecture.entity';
 import { Tag } from './entities/tag.entity';
 import { Video } from './entities/video.entity';
-import { CreateLectureDto } from './dtos/createLecture.dto';
+import { RequestCreateLectureDto } from './dtos/request/requestCreateLecture.dto';
+import { ResponseCreateLectureDto } from './dtos/response/responseCreateLecture.dto';
 
 @Injectable()
 export class LecturesService {
@@ -31,7 +32,9 @@ export class LecturesService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async createLecture(createLectureDto: CreateLectureDto) {
+  async createLecture(
+    createLectureDto: RequestCreateLectureDto,
+  ): Promise<ResponseCreateLectureDto> {
     const lecture = await this.lecturesRepository.save({
       title: createLectureDto.title,
       description: createLectureDto.description,

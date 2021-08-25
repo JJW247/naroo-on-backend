@@ -39,3 +39,20 @@ content-type: application/json
 
 {
 }
+
+### Create new teacher
+POST http://localhost:3010/auth/admin/teacher
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjI5ODc3NDY4fQ._BsT5mcFiCCmaorlYSQWevZFdDjazOoBB6LeykxwxY8
+content-type: application/json
+
+{
+    "email" : "teacher2@test.com",
+    "password" : "12341234",
+    "nickname" : "강사2",
+    "phone_number" : "01022222222",
+    "introduce" : "안녕하세요. 강사2입니다!"
+}
+
+### Find all teachers
+GET http://localhost:3010/auth/admin/teacher
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjI5ODc3NDY4fQ._BsT5mcFiCCmaorlYSQWevZFdDjazOoBB6LeykxwxY8

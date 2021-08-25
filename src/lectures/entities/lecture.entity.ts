@@ -102,7 +102,4 @@ export class Lecture extends Common {
 
   @OneToMany(() => LectureTag, (lectureTag) => lectureTag.lecture)
   lectureTags: LectureTag[];
-
-  @OneToMany(() => LectureTag, (lectureTag) => lectureTag.tag)
-  tags: [];
 }
