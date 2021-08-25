@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  ForbiddenException,
-  Get,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { RequestCreateLectureDto } from './dtos/request/requestCreateLecture.dto';
 import { ResponseCreateLectureDto } from './dtos/response/responseCreateLecture.dto';
@@ -39,6 +31,18 @@ export class LecturesController {
 
   @Get()
   async readLectures() {
-    return await this.lecturesService.findAll();
+    const lectures = await this.lecturesService.findAll();
+    const filteredLectures = [];
+    await Promise.all(
+      lectures.map(async (lecture) => {
+        const teacher = await this.usersService.findNameById(lecture.teacherId);
+        filteredLectures.push({
+          title: lecture.title,
+          thumbnail: lecture.thumbnail,
+          teacherName: teacher.nickname,
+        });
+      }),
+    );
+    return filteredLectures;
   }
 }

@@ -3,10 +3,10 @@ POST http://localhost:3010/auth/signup
 content-type: application/json
 
 {
-    "email" : "admin@admin.com",
+    "email" : "teacher2@test.com",
     "password" : "12341234",
-    "nickname" : "조정우",
-    "phone_number" : "01042195075"
+    "nickname" : "iOS Developer",
+    "phone" : "010-2222-2222"
 }
 
 ### Signin

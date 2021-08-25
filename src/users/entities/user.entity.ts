@@ -37,7 +37,7 @@ export class User extends Common {
     description: '닉네임',
   })
   @IsString()
-  @Length(2, 10)
+  @Length(2, 13)
   @IsNotEmpty()
   @Column('varchar')
   nickname: string;
@@ -50,6 +50,11 @@ export class User extends Common {
   @IsNotEmpty()
   @Column('varchar')
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Column('varchar', { unique: true })
+  phone: string;
 
   @ApiProperty({
     example: 'student',

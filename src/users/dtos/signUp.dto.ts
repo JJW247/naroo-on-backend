@@ -10,11 +10,11 @@ export class SignUpDto {
   password: string;
 
   @IsString()
-  @Length(2, 10)
+  @Length(2, 13)
   @IsNotEmpty()
   nickname: string;
 
   @IsString()
   @IsNotEmpty()
-  phone_number: string;
+  phone: string;
 }

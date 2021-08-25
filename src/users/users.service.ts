@@ -19,11 +19,18 @@ export class UsersService {
   async signUp(signUpDto: SignUpDto) {
     const hashedPassword = await bcrypt.hash(signUpDto.password, 10);
 
+    if (!signUpDto.phone.match(/^[0-9]{3}[-]+[0-9]{4}[-]+[0-9]{4}$/)) {
+      throw new HttpException(
+        '휴대폰 번호를 정확하게 입력해주세요!',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
     const user = await this.usersRepository.save({
       email: signUpDto.email,
       nickname: signUpDto.nickname,
       password: hashedPassword,
-      phone_number: signUpDto.phone_number,
+      phone: signUpDto.phone,
     });
 
     const token = this.jwtService.sign({ id: user.id });
@@ -77,6 +84,18 @@ export class UsersService {
     });
   }
 
+  findNameById(id: number) {
+    if (!id) {
+      return null;
+    }
+    return this.usersRepository.findOne({
+      where: {
+        id,
+      },
+      select: ['nickname'],
+    });
+  }
+
   async addTeacher(id: number, addTeacherDto: AddTeacherDto) {
     if (!id) {
       return null;
@@ -94,7 +113,7 @@ export class UsersService {
         email: addTeacherDto.email,
         nickname: addTeacherDto.nickname,
         password: addTeacherDto.password,
-        phone_number: addTeacherDto.phone_number,
+        phone: addTeacherDto.phone,
         role: CONST_ROLE_TYPE.TEACHER,
         introduce: addTeacherDto.introduce,
       });

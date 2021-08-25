@@ -42,6 +42,7 @@ export class LecturesService {
       thumbnail: createLectureDto.thumbnail,
       images: createLectureDto.images,
       expiredAt: createLectureDto.expiredAt,
+      teacherId: createLectureDto.teacherId,
     });
     return lecture;
   }

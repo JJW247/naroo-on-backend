@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { LectureTag } from './lectureTag.entity';
 import { Notice } from './notice.entity';
 import { Question } from './question.entity';
@@ -86,7 +86,11 @@ export class Lecture extends Common {
   expiredAt: Date;
 
   @ManyToOne(() => User, (user) => user.teachLectures)
+  @JoinColumn({ name: 'teacherId' })
   teacher: User;
+
+  @Column('int', { nullable: true })
+  teacherId: number;
 
   @OneToMany(() => Video, (video) => video.lecture)
   videos: Video[];
