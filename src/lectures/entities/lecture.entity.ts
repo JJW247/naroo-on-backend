@@ -86,11 +86,8 @@ export class Lecture extends Common {
   expiredAt: Date;
 
   @ManyToOne(() => User, (user) => user.teachLectures)
-  @JoinColumn({ name: 'teacherId' })
+  @JoinColumn()
   teacher: User;
-
-  @Column('int', { nullable: true })
-  teacherId: number;
 
   @OneToMany(() => Video, (video) => video.lecture)
   videos: Video[];

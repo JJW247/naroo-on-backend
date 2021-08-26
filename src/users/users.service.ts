@@ -26,6 +26,17 @@ export class UsersService {
       );
     }
 
+    const isUniquePhone = await this.usersRepository.findOne({
+      phone: signUpDto.phone,
+    });
+
+    if (isUniquePhone !== undefined) {
+      throw new HttpException(
+        '동일한 휴대폰 번호가 존재합니다!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const user = await this.usersRepository.save({
       email: signUpDto.email,
       nickname: signUpDto.nickname,
@@ -81,18 +92,6 @@ export class UsersService {
         id,
       },
       select: ['id', 'role'],
-    });
-  }
-
-  findNameById(id: number) {
-    if (!id) {
-      return null;
-    }
-    return this.usersRepository.findOne({
-      where: {
-        id,
-      },
-      select: ['nickname'],
     });
   }
 

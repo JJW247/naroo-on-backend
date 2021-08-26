@@ -2,8 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from 'src/users/users.module';
-import { UsersService } from 'src/users/users.service';
+import { User } from 'src/users/entities/user.entity';
 import { Lecture } from './entities/lecture.entity';
 import { LectureTag } from './entities/lectureTag.entity';
 import { Notice } from './entities/notice.entity';
@@ -24,6 +23,7 @@ import { LecturesService } from './lectures.service';
       StudentLecture,
       Tag,
       Video,
+      User,
     ]),
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -31,7 +31,6 @@ import { LecturesService } from './lectures.service';
         secret: configService.get<string>('JWT_SECRET'),
       }),
     }),
-    UsersModule,
   ],
   controllers: [LecturesController],
   providers: [LecturesService],
