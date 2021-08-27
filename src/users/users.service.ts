@@ -91,7 +91,7 @@ export class UsersService {
       where: {
         id,
       },
-      select: ['id', 'role'],
+      select: ['id', 'role', 'nickname'],
     });
   }
 

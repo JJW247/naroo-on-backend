@@ -6,7 +6,10 @@ import { Lecture } from './entities/lecture.entity';
 import { LectureTag } from './entities/lectureTag.entity';
 import { Notice } from './entities/notice.entity';
 import { Question } from './entities/question.entity';
-import { StudentLecture } from './entities/studentLecture.entity';
+import {
+  CONST_LECTURE_STATUS,
+  StudentLecture,
+} from './entities/studentLecture.entity';
 import { Tag } from './entities/tag.entity';
 import { Video } from './entities/video.entity';
 import { RequestCreateLectureDto } from './dtos/request/requestCreateLecture.dto';
@@ -69,22 +72,51 @@ export class LecturesService {
     if (!req.user) {
       return null;
     }
-    // return await this.lecturesRepository
-    //   .createQueryBuilder('lecture')
-    //   .leftJoin('lecture.teacher', 'user')
-    //   .where('user."id" = :studentId', { studentId: +req.user })
-    //   .leftJoin('lecture.')
-    //   .select(['lecture.title', 'lecture.thumbnail', 'user.nickname'])
-    //   .orderBy('lecture.title', 'DESC')
-    //   .getMany();
+    return await this.studentLecturesRepository
+      .createQueryBuilder('student_lecture')
+      .innerJoin('student_lecture.user', 'apply_student')
+      .where('apply_student."id" = :studentId', { studentId: +req.user })
+      .innerJoin('student_lecture.lecture', 'apply_lecture')
+      .where(
+        'student_lecture."status" = :status OR student_lecture."status" = :status2',
+        {
+          status: CONST_LECTURE_STATUS.APPLY,
+          status2: CONST_LECTURE_STATUS.VISIBLE,
+        },
+      )
+      .innerJoin('apply_lecture.teacher', 'lecture_teacher')
+      .select([
+        'apply_lecture.title AS title',
+        'apply_lecture.thumbnail AS thumbnail',
+        'lecture_teacher.nickname AS nickname',
+        'apply_lecture.type AS type',
+        'student_lecture.status AS status',
+        'apply_lecture.expiredAt AS expired',
+      ])
+      .orderBy('apply_lecture.title', 'DESC')
+      .getRawMany();
   }
 
   async readAllLectures() {
     return await this.lecturesRepository
       .createQueryBuilder('lecture')
-      .leftJoin('lecture.teacher', 'teacher')
-      .select(['lecture.title', 'lecture.thumbnail', 'teacher.nickname'])
+      .innerJoin('lecture.teacher', 'teacher')
+      .select([
+        'lecture.title AS title',
+        'lecture.thumbnail AS thumbnail',
+        'teacher.nickname AS nickname',
+        'lecture.type AS type',
+        'lecture.expiredAt AS expired',
+      ])
       .orderBy('lecture.title', 'DESC')
-      .getMany();
+      .getRawMany();
+  }
+
+  async registerLecture(req: Request, param: { lectureId: string }) {
+    return await this.studentLecturesRepository.save({
+      user: { id: +req.user },
+      lecture: { id: +param.lectureId },
+      status: CONST_LECTURE_STATUS.APPLY,
+    });
   }
 }

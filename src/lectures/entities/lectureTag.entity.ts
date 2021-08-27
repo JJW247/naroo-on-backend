@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Lecture } from 'src/lectures/entities/lecture.entity';
-import { CreateDateColumn, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+} from 'typeorm';
 import { Tag } from './tag.entity';
 
 @Entity()
@@ -35,6 +41,6 @@ export class LectureTag {
   @CreateDateColumn()
   updatedAt: Date;
 
-  @CreateDateColumn()
+  @DeleteDateColumn()
   deletedAt: Date;
 }

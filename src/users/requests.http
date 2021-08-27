@@ -9,12 +9,21 @@ content-type: application/json
     "phone" : "010-2222-2222"
 }
 
-### Signin
+### Signin by Admin
 POST http://localhost:3010/auth/signin
 content-type: application/json
 
 {
     "email" : "admin@test.com",
+    "password" : "12341234"
+}
+
+### Signin by Student
+POST http://localhost:3010/auth/signin
+content-type: application/json
+
+{
+    "email" : "student1@test.com",
     "password" : "12341234"
 }
 

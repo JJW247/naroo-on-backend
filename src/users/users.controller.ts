@@ -25,8 +25,8 @@ export class UsersController {
   async getMe(@Req() req: Request) {
     const user = await this.usersService.getMe(+req.user);
     return user
-      ? { userId: user.id, role: user.role }
-      : { userId: null, role: null };
+      ? { userId: user.id, role: user.role, nickname: user.nickname }
+      : { userId: null, role: null, nickname: null };
   }
 
   @Post('/admin/teacher')

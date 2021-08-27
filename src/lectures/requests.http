@@ -15,8 +15,17 @@ content-type: application/json
     "approved": false
 }
 
-### Get
-GET http://localhost:3010/lecture/admin
+### Get All
+GET http://localhost:3010/lecture/all
+
+### Get All
+GET http://localhost:3010/lecture
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTYzMDA0OTcyNH0.Z0yAkc_d-wVAWZjlHfEV22m_magcm1lVgxToaeXcyOU
+
+### Register Lecture
+PUT http://localhost:3010/lecture/2
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTYzMDA0OTcyNH0.Z0yAkc_d-wVAWZjlHfEV22m_magcm1lVgxToaeXcyOU
+
 
 ### For Dummy Data
 POST http://localhost:3010/lecture/create

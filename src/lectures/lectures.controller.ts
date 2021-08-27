@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { RequestCreateLectureDto } from './dtos/request/requestCreateLecture.dto';
 import { ResponseCreateLectureDto } from './dtos/response/responseCreateLecture.dto';
@@ -27,8 +36,17 @@ export class LecturesController {
     return await this.lecturesService.readLectures(req);
   }
 
-  @Get('/admin')
+  @Get('/all')
   async readAllLectures() {
     return await this.lecturesService.readAllLectures();
+  }
+
+  @Put('/:lectureId')
+  @UseGuards(JwtAuthGuard)
+  async registerLecture(
+    @Req() req: Request,
+    @Param() param: { lectureId: string },
+  ) {
+    return await this.lecturesService.registerLecture(req, param);
   }
 }

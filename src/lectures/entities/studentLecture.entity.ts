@@ -5,6 +5,7 @@ import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -57,7 +58,7 @@ export class StudentLecture {
   @CreateDateColumn()
   updatedAt: Date;
 
-  @CreateDateColumn()
+  @DeleteDateColumn()
   deletedAt: Date;
 
   @ApiProperty({
@@ -69,7 +70,6 @@ export class StudentLecture {
   @Column('enum', {
     enum: CONST_LECTURE_STATUS,
     default: CONST_LECTURE_STATUS.VISIBLE,
-    unique: true,
   })
   status: LECTURE_STATUS;
 
@@ -81,8 +81,7 @@ export class StudentLecture {
   @IsOptional()
   @Column('enum', {
     enum: CONST_RATING_TYPE,
-    default: CONST_RATING_TYPE.FIVE,
-    unique: true,
+    default: null,
   })
   rating: RATING_TYPE;
 
@@ -92,6 +91,6 @@ export class StudentLecture {
   })
   @IsString()
   @IsOptional()
-  @Column('varchar', { unique: true })
+  @Column('varchar', { default: null })
   review: string;
 }
