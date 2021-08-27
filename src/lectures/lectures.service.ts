@@ -72,19 +72,15 @@ export class LecturesService {
     if (!req.user) {
       return null;
     }
-    return await this.studentLecturesRepository
+    const test = await this.studentLecturesRepository
       .createQueryBuilder('student_lecture')
       .innerJoin('student_lecture.user', 'apply_student')
-      .where('apply_student."id" = :studentId', { studentId: +req.user })
       .innerJoin('student_lecture.lecture', 'apply_lecture')
-      .where(
-        'student_lecture."status" = :status OR student_lecture."status" = :status2',
-        {
-          status: CONST_LECTURE_STATUS.APPLY,
-          status2: CONST_LECTURE_STATUS.VISIBLE,
-        },
-      )
       .innerJoin('apply_lecture.teacher', 'lecture_teacher')
+      .where('apply_student.id = :studentId', { studentId: +req.user })
+      .andWhere('student_lecture.status = :status', {
+        status: CONST_LECTURE_STATUS.APPLY,
+      })
       .select([
         'apply_lecture.title AS title',
         'apply_lecture.thumbnail AS thumbnail',
@@ -95,6 +91,10 @@ export class LecturesService {
       ])
       .orderBy('apply_lecture.title', 'DESC')
       .getRawMany();
+
+    console.log(test);
+
+    return test;
   }
 
   async readAllLectures() {

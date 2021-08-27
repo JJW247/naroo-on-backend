@@ -22,7 +22,7 @@ GET http://localhost:3010/lecture/all
 GET http://localhost:3010/lecture
 authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTYzMDA0OTcyNH0.Z0yAkc_d-wVAWZjlHfEV22m_magcm1lVgxToaeXcyOU
 
-### Register Lecture
+### Approve Lecture
 PUT http://localhost:3010/lecture/2
 authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTYzMDA0OTcyNH0.Z0yAkc_d-wVAWZjlHfEV22m_magcm1lVgxToaeXcyOU
 
