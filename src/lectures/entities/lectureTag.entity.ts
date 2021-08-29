@@ -40,7 +40,4 @@ export class LectureTag {
   })
   @CreateDateColumn()
   updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

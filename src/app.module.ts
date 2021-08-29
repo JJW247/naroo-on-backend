@@ -15,6 +15,7 @@ import { Notice } from './lectures/entities/notice.entity';
 import { Question } from './lectures/entities/question.entity';
 import { Tag } from './lectures/entities/tag.entity';
 import { Video } from './lectures/entities/video.entity';
+import { LectureReview } from './lectures/entities/lectureReview.entity';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { Video } from './lectures/entities/video.entity';
         StudentLecture,
         Tag,
         Video,
+        LectureReview,
       ],
       synchronize: true,
       logging: true,

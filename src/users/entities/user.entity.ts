@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
 import { Lecture } from 'src/lectures/entities/lecture.entity';
+import { LectureReview } from 'src/lectures/entities/lectureReview.entity';
 import { Question } from 'src/lectures/entities/question.entity';
 import { StudentLecture } from 'src/lectures/entities/studentLecture.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
@@ -29,7 +30,7 @@ export class User extends Common {
   })
   @IsEmail()
   @IsNotEmpty()
-  @Column('varchar')
+  @Column('varchar', { unique: true })
   email: string;
 
   @ApiProperty({
@@ -39,7 +40,7 @@ export class User extends Common {
   @IsString()
   @Length(2, 13)
   @IsNotEmpty()
-  @Column('varchar')
+  @Column('varchar', { unique: true })
   nickname: string;
 
   @ApiProperty({
@@ -85,4 +86,7 @@ export class User extends Common {
 
   @OneToMany(() => Question, (question) => question.teacher)
   answers: Question[];
+
+  @OneToMany(() => LectureReview, (lectureReview) => lectureReview.student)
+  lectureReviews: LectureReview[];
 }

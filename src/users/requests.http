@@ -23,7 +23,7 @@ POST http://localhost:3010/auth/signin
 content-type: application/json
 
 {
-    "email" : "student1@test.com",
+    "email" : "student2@test.com",
     "password" : "12341234"
 }
 

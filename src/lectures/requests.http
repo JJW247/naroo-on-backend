@@ -15,16 +15,64 @@ content-type: application/json
     "approved": false
 }
 
-### Get All
+### Read All Lectures
 GET http://localhost:3010/lecture/all
 
-### Get All
+### Read Lecture By Id
+GET http://localhost:3010/lecture/guest/7
+
+### Read Lecture By Id with Token
+GET http://localhost:3010/lecture/8
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNjMwMTk2OTM2fQ.ksyoLxYPpRhfyhC6h4XjzQRExmr_kUk8T3om7xuQ8Lc
+
+### Read All Lectures Of User
 GET http://localhost:3010/lecture
 authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTYzMDA0OTcyNH0.Z0yAkc_d-wVAWZjlHfEV22m_magcm1lVgxToaeXcyOU
 
+### Register Lecture
+PUT http://localhost:3010/lecture/8
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjMwMjEzMDA1fQ.2yMcYBreV3FhG9aqk0qS0NqpA6ySBcxzi6uevo1FQNY
+
 ### Approve Lecture
-PUT http://localhost:3010/lecture/2
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTYzMDA0OTcyNH0.Z0yAkc_d-wVAWZjlHfEV22m_magcm1lVgxToaeXcyOU
+PUT http://localhost:3010/lecture/admin/8?userId=7
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMjEwMjcxfQ.UWFSezJNC5ZZCnmx2DI0ztdoB02ZKLZyEYrlrJa5Ll4
+
+### Register Review
+PUT http://localhost:3010/lecture/review/7
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjMwMjEzMDA1fQ.2yMcYBreV3FhG9aqk0qS0NqpA6ySBcxzi6uevo1FQNY
+content-type: application/json
+
+{
+    "review" : "정말 좋은 강의입니다!",
+    "rating" : 5
+}
+
+### Get Recent Reviews
+GET http://localhost:3010/lecture/review
+
+### Create Tag
+POST http://localhost:3010/lecture/tag/create
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMTc0MTU3fQ.prDHDjF_4yZNRiEQS7W1TIjhJL533UQlDsac_0TTBrc
+content-type: application/json
+
+{
+    "name" : "테스트"
+}
+
+### Read All Tags
+GET http://localhost:3010/lecture/tag/all
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMTc0MTU3fQ.prDHDjF_4yZNRiEQS7W1TIjhJL533UQlDsac_0TTBrc
+
+### Read All Tags Of Lecture
+GET http://localhost:3010/lecture/tag/5
+
+### Connect Tag with Lecture
+PUT http://localhost:3010/lecture/tag/7?ids=13
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMTc0MTU3fQ.prDHDjF_4yZNRiEQS7W1TIjhJL533UQlDsac_0TTBrc
+
+
+
+
 
 
 ### For Dummy Data

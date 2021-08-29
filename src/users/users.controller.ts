@@ -23,27 +23,24 @@ export class UsersController {
   @Get('/me')
   @UseGuards(JwtAuthGuard)
   async getMe(@Req() req: Request) {
-    const user = await this.usersService.getMe(+req.user);
-    return user
-      ? { userId: user.id, role: user.role, nickname: user.nickname }
-      : { userId: null, role: null, nickname: null };
+    return await this.usersService.getMe(req);
   }
 
   @Post('/admin/teacher')
   @UseGuards(JwtAuthGuard)
   async addTeacher(@Req() req: Request, @Body() addTeacherDto: AddTeacherDto) {
-    return await this.usersService.addTeacher(+req.user, addTeacherDto);
+    return await this.usersService.addTeacher(req, addTeacherDto);
   }
 
   @Get('/admin/teacher')
   @UseGuards(JwtAuthGuard)
   async findAllTeachers(@Req() req: Request) {
-    return await this.usersService.findAllTeachers(+req.user);
+    return await this.usersService.findAllTeachers(req);
   }
 
   @Get('/admin/student')
   @UseGuards(JwtAuthGuard)
   async findAllStudents(@Req() req: Request) {
-    return await this.usersService.findAllStudents(+req.user);
+    return await this.usersService.findAllStudents(req);
   }
 }

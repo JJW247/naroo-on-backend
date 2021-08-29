@@ -10,6 +10,6 @@ export class Tag extends Common {
 
   @IsString()
   @IsNotEmpty()
-  @Column('varchar')
+  @Column('varchar', { unique: true })
   name: string;
 }

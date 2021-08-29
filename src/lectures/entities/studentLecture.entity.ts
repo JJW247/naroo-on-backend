@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 import { Lecture } from 'src/lectures/entities/lecture.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -15,22 +15,11 @@ export const CONST_LECTURE_STATUS = {
   APPLY: 'apply',
   REJECT: 'reject',
   INVISIBLE: 'invisible',
-  VISIBLE: 'visible',
+  ACCEPT: 'accept',
 } as const;
 
 export type LECTURE_STATUS =
   typeof CONST_LECTURE_STATUS[keyof typeof CONST_LECTURE_STATUS];
-
-const CONST_RATING_TYPE = {
-  ONE: 1,
-  TWO: 2,
-  THREE: 3,
-  FOUR: 4,
-  FIVE: 5,
-} as const;
-
-export type RATING_TYPE =
-  typeof CONST_RATING_TYPE[keyof typeof CONST_RATING_TYPE];
 
 @Entity()
 export class StudentLecture {
@@ -69,28 +58,7 @@ export class StudentLecture {
   @IsOptional()
   @Column('enum', {
     enum: CONST_LECTURE_STATUS,
-    default: CONST_LECTURE_STATUS.VISIBLE,
-  })
-  status: LECTURE_STATUS;
-
-  @ApiProperty({
-    example: 1,
-    description: '강의 평점',
-  })
-  @IsEnum(CONST_RATING_TYPE)
-  @IsOptional()
-  @Column('enum', {
-    enum: CONST_RATING_TYPE,
     default: null,
   })
-  rating: RATING_TYPE;
-
-  @ApiProperty({
-    example: '최고의 강의입니다.',
-    description: '강의 리뷰 내용',
-  })
-  @IsString()
-  @IsOptional()
-  @Column('varchar', { default: null })
-  review: string;
+  status: LECTURE_STATUS;
 }

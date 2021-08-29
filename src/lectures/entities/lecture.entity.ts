@@ -10,6 +10,7 @@ import {
 import { Common } from 'src/common/entities/common.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { LectureReview } from './lectureReview.entity';
 import { LectureTag } from './lectureTag.entity';
 import { Notice } from './notice.entity';
 import { Question } from './question.entity';
@@ -31,7 +32,7 @@ export class Lecture extends Common {
     description: '강의 제목',
   })
   @IsString()
-  @Column('varchar')
+  @Column('varchar', { unique: true })
   title: string;
 
   @ApiProperty({
@@ -82,7 +83,7 @@ export class Lecture extends Common {
   })
   @IsDate()
   @IsOptional()
-  @Column('date', { default: null })
+  @Column('timestamp', { default: null })
   expiredAt: Date;
 
   @ManyToOne(() => User, (user) => user.teachLectures)
@@ -103,4 +104,7 @@ export class Lecture extends Common {
 
   @OneToMany(() => LectureTag, (lectureTag) => lectureTag.lecture)
   lectureTags: LectureTag[];
+
+  @OneToMany(() => LectureReview, (lectureReview) => lectureReview.lecture)
+  lectureReviews: LectureReview[];
 }

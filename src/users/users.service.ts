@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dtos/signup.dto';
 import { SignInDto } from './dtos/signIn.dto';
 import { AddTeacherDto } from './dtos/addTeacher.dto';
+import { Request } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -83,26 +84,22 @@ export class UsersService {
     return { token };
   }
 
-  getMe(id: number) {
-    if (!id) {
-      return null;
-    }
-    return this.usersRepository.findOne({
+  async getMe(req: Request) {
+    const user = await this.usersRepository.findOne({
       where: {
-        id,
+        id: +req.user,
       },
       select: ['id', 'role', 'nickname'],
     });
+    return user
+      ? { userId: user.id, role: user.role, nickname: user.nickname }
+      : { userId: null, role: null, nickname: null };
   }
 
-  async addTeacher(id: number, addTeacherDto: AddTeacherDto) {
-    if (!id) {
-      return null;
-    }
-
+  async addTeacher(req: Request, addTeacherDto: AddTeacherDto) {
     const user = await this.usersRepository.findOne({
       where: {
-        id,
+        id: +req.user,
       },
       select: ['role'],
     });
@@ -121,14 +118,10 @@ export class UsersService {
     }
   }
 
-  async findAllTeachers(id: number) {
-    if (!id) {
-      return null;
-    }
-
+  async findAllTeachers(req: Request) {
     const user = await this.usersRepository.findOne({
       where: {
-        id,
+        id: +req.user,
       },
       select: ['role'],
     });
@@ -149,14 +142,10 @@ export class UsersService {
     }
   }
 
-  async findAllStudents(id: number) {
-    if (!id) {
-      return null;
-    }
-
+  async findAllStudents(req: Request) {
     const user = await this.usersRepository.findOne({
       where: {
-        id,
+        id: +req.user,
       },
       select: ['role'],
     });
