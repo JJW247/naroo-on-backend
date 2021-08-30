@@ -18,6 +18,21 @@ import { Request } from 'express';
 import { ResponseCreateLectureDto } from './dtos/response/responseCreateLecture.dto';
 import { LectureReview, RATING_TYPE } from './entities/lectureReview.entity';
 
+import _ = require('lodash');
+
+function getAverageRating(filteredReviews: any[]) {
+  _.each(filteredReviews, (review) => _.update(review, 'rating', _.parseInt));
+  const totalRating =
+    !filteredReviews || filteredReviews.length === 0
+      ? 0
+      : Math.round(
+          (_.sumBy(['rating'], _.partial(_.sumBy, filteredReviews)) /
+            filteredReviews.length) *
+            2,
+        ) / 2;
+  return totalRating;
+}
+
 @Injectable()
 export class LecturesService {
   constructor(
@@ -120,6 +135,8 @@ export class LecturesService {
           for (const tag of rawTags) {
             tags.push(tag.name);
           }
+          const filteredReviews = reviews ? [...reviews] : [];
+          const totalRating = getAverageRating(filteredReviews);
           responseLectures.push({
             id: lecture.id,
             title: lecture.title,
@@ -128,6 +145,7 @@ export class LecturesService {
             type: lecture.type,
             expired: lecture.expired,
             tags,
+            average_rating: totalRating,
             reviews,
           });
         });
@@ -211,6 +229,8 @@ export class LecturesService {
       for (const tag of rawTags) {
         tags.push(tag.name);
       }
+      const filteredReviews = reviews ? [...reviews] : [];
+      const totalRating = getAverageRating(filteredReviews);
       return {
         id: lecture.id,
         title: lecture.title,
@@ -224,6 +244,7 @@ export class LecturesService {
         videos,
         notices,
         tags,
+        average_rating: totalRating,
         reviews: reviews ? reviews : [],
       };
     } catch (error) {
@@ -315,6 +336,7 @@ export class LecturesService {
       for (const tag of rawTags) {
         tags.push(tag.name);
       }
+      const totalRating = getAverageRating(reviews);
       return {
         id: lecture.id,
         title: lecture.title,
@@ -328,6 +350,7 @@ export class LecturesService {
         videos,
         notices,
         tags,
+        average_rating: totalRating,
         reviews: reviews ? reviews : [],
       };
     } catch (error) {
@@ -389,6 +412,7 @@ export class LecturesService {
             ])
             .orderBy('created_at', 'DESC')
             .getRawMany();
+          const totalRating = getAverageRating(reviews);
           responseApprovedLectures.push({
             id: lecture.id,
             title: lecture.title,
@@ -397,6 +421,7 @@ export class LecturesService {
             type: lecture.type,
             expired: lecture.expired,
             tags,
+            average_rating: totalRating,
             reviews,
           });
         });

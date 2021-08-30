@@ -1,0 +1,14 @@
+### Create Resource Content
+POST http://localhost:3010/resource
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTYzMDI5ODU3Mn0.5IiZE6PYQ5HYN0fTQcWGxuZMXgBKF_9NSU06L2zwlGs
+content-type: application/json
+
+{
+    "type": "",
+    "content_id" : 2,
+    "content": ""
+}
+
+### Read Resource Content By Type
+### type : admin_email, header_logo, footer_logo, notice_carousel, org_carousel
+GET http://localhost:3010/resource/notice_carousel

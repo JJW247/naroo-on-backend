@@ -16,6 +16,8 @@ import { Question } from './lectures/entities/question.entity';
 import { Tag } from './lectures/entities/tag.entity';
 import { Video } from './lectures/entities/video.entity';
 import { LectureReview } from './lectures/entities/lectureReview.entity';
+import { Resource } from './resources/entities/resource.entity';
+import { ResourcesModule } from './resources/resources.module';
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { LectureReview } from './lectures/entities/lectureReview.entity';
         Tag,
         Video,
         LectureReview,
+        Resource,
       ],
       synchronize: true,
       logging: true,
@@ -46,6 +49,7 @@ import { LectureReview } from './lectures/entities/lectureReview.entity';
     UsersModule,
     LecturesModule,
     AuthModule,
+    ResourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

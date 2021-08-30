@@ -34,12 +34,12 @@ PUT http://localhost:3010/lecture/8
 authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjMwMjEzMDA1fQ.2yMcYBreV3FhG9aqk0qS0NqpA6ySBcxzi6uevo1FQNY
 
 ### Approve Lecture
-PUT http://localhost:3010/lecture/admin/8?userId=7
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMjEwMjcxfQ.UWFSezJNC5ZZCnmx2DI0ztdoB02ZKLZyEYrlrJa5Ll4
+PUT http://localhost:3010/lecture/admin/3?userId=15
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTYzMDI4MjcwM30.Thl7zfBnvmEhyxl6KFGr7z2yv8mswM1DyVGSDcx3GFY
 
 ### Register Review
-PUT http://localhost:3010/lecture/review/7
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjMwMjEzMDA1fQ.2yMcYBreV3FhG9aqk0qS0NqpA6ySBcxzi6uevo1FQNY
+PUT http://localhost:3010/lecture/review/2
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTksImlhdCI6MTYzMDI4MzI1Nn0.7t5FKgVZ3w-qV-NxyVb-Ya3CGTUP6o2g18N3ZKYsE38
 content-type: application/json
 
 {
