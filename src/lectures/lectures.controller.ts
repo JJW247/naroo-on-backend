@@ -142,4 +142,56 @@ export class LecturesController {
   ) {
     return await this.lecturesService.registerTag(req, pathParam, queryParam);
   }
+
+  @Post('/notice/create/:lectureId')
+  @UseGuards(JwtAuthGuard)
+  async createNotice(
+    @Param() param: { lectureId: string },
+    @Req() req: Request,
+    @Body() requestCreateNoticeDto: { title: string; description: string },
+  ) {
+    return await this.lecturesService.createNotice(
+      param,
+      req,
+      requestCreateNoticeDto,
+    );
+  }
+
+  @Get('/notice/:lectureId')
+  async readNotices(@Param() param: { lectureId: string }) {
+    return await this.lecturesService.readNotices(param);
+  }
+
+  @Post('/lecture/question/:lectureId')
+  @UseGuards(JwtAuthGuard)
+  async createQuestion(
+    @Param() param: { lectureId: string },
+    @Req() req: Request,
+    @Body() requestCreateQuestionDto: { title: string; description: string },
+  ) {
+    return await this.lecturesService.createNotice(
+      param,
+      req,
+      requestCreateQuestionDto,
+    );
+  }
+
+  @Post('/lecture/answer/:lectureId')
+  @UseGuards(JwtAuthGuard)
+  async createAnswer(
+    @Param() param: { lectureId: string },
+    @Req() req: Request,
+    @Body() requestCreateAnswerDto: { title: string; description: string },
+  ) {
+    return await this.lecturesService.createNotice(
+      param,
+      req,
+      requestCreateAnswerDto,
+    );
+  }
+
+  @Get('/lecture/question/:lectureId')
+  async readQnas(@Param() param: { lectureId: string }) {
+    return await this.lecturesService.readQnas(param);
+  }
 }

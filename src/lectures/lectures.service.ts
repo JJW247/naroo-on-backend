@@ -779,4 +779,117 @@ export class LecturesService {
       return { ok: false };
     }
   }
+
+  async createNotice(
+    param: { lectureId: string },
+    req: Request,
+    requestCreateNoticeDto: { title: string; description: string },
+  ) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: req.user,
+      },
+      select: ['role'],
+    });
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
+    ) {
+      throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
+    }
+    return await this.noticesRepository.save({
+      lecture: { id: +param.lectureId },
+      title: requestCreateNoticeDto.title,
+      description: requestCreateNoticeDto.description,
+    });
+  }
+
+  async readNotices(param: { lectureId: string }) {
+    return await this.noticesRepository
+      .createQueryBuilder('notice')
+      .innerJoin('notice.lecture', 'lecture')
+      .where('lecture.id = :id', { id: +param.lectureId })
+      .select([
+        'notice.createdAt AS created_at',
+        'notice.title AS title',
+        'notice.description AS description',
+      ])
+      .orderBy('notice.createdAt', 'DESC')
+      .getRawMany();
+  }
+
+  async createQuestion(
+    param: { lectureId: string },
+    req: Request,
+    requestCreateQuestionDto: { title: string; description: string },
+  ) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: req.user,
+      },
+      select: ['role'],
+    });
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.STUDENT
+    ) {
+      throw new HttpException(
+        '문의는 학생 권한이 필요합니다!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    return await this.questionsRepository.save({
+      lecture: { id: +param.lectureId },
+      student: { id: +req.user },
+      questionTitle: requestCreateQuestionDto.title,
+      questionDescription: requestCreateQuestionDto.description,
+    });
+  }
+
+  async createAnswer(
+    param: { lectureId: string },
+    req: Request,
+    requestCreateAnswerDto: { title: string; description: string },
+  ) {
+    // Need to Permission Check Whether Lecture is of Teacher Id
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: req.user,
+      },
+      select: ['role'],
+    });
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.TEACHER
+    ) {
+      throw new HttpException(
+        '답변은 강사 권한이 필요합니다!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    // return await this.questionsRepository.save({
+    //   lecture: { id: +param.lectureId },
+    //   answerTitle: requestCreateAnswerDto.title,
+    //   answerDescription: requestCreateAnswerDto.description,
+    // });
+  }
+
+  async readQnas(param: { lectureId: string }) {
+    return await this.questionsRepository
+      .createQueryBuilder('question')
+      .innerJoin('question.lecture', 'lecture')
+      .innerJoin('question.student', 'student')
+      .innerJoin('question.teacher', 'teacher')
+      .where('lecture.id = :id', { id: +param.lectureId })
+      .select([
+        'question.createdAt AS question_created_at',
+        'question.title AS questionTitle',
+        'question.description AS questionDescription',
+        'answer.createdAt AS answer_created_at',
+        'answer.title AS answerTitle',
+        'answer.description AS answerDescription',
+      ])
+      .orderBy('question.createdAt', 'DESC')
+      .getRawMany();
+  }
 }
