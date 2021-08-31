@@ -1,10 +1,22 @@
 ### Create a lecture
 POST http://localhost:3010/lecture/create
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMzk3OTM5fQ.FPuVHj07kCzTNk6TmjfMU_ACsR3PcM6WTAEVEJoIQnY
 content-type: application/json
 
 {
     "title": "강의 1",
-    "description": "테스트용 강의 1번 입니다!"
+    "description": "테스트용 강의 1번 입니다!",
+    "teacherId": 6,
+    "videos": [{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "1강 : 소개"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "2강 : 도입부"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "3강 : 마무리"
+    }]
 }
 
 ### Approve an existing lecture

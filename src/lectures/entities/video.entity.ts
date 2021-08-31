@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUrl } from 'class-validator';
+import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
 import { Lecture } from 'src/lectures/entities/lecture.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
@@ -10,7 +10,7 @@ export class Video extends Common {
     example: '1',
     description: '강의 ID',
   })
-  @ManyToOne(() => Lecture, (lecture) => lecture.videos)
+  @ManyToOne(() => Lecture, (lecture) => lecture.videos, { primary: true })
   @JoinColumn()
   lecture: Lecture;
 
@@ -22,4 +22,13 @@ export class Video extends Common {
   @IsNotEmpty()
   @Column('varchar')
   url: string;
+
+  @ApiProperty({
+    example: '1강 : ~~~',
+    description: '강의 설명',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Column('varchar')
+  title: string;
 }

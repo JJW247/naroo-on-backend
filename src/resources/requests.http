@@ -1,12 +1,12 @@
 ### Create Resource Content
 POST http://localhost:3010/resource
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTYzMDI5ODU3Mn0.5IiZE6PYQ5HYN0fTQcWGxuZMXgBKF_9NSU06L2zwlGs
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMzg3NDM2fQ.TWz2R-g-j1IB-ROc-gYajXqsdg0AwyUMoRS-Guq5TYc
 content-type: application/json
 
 {
-    "type": "",
+    "type": "notice_carousel",
     "content_id" : 2,
-    "content": ""
+    "content": "https://cdn.pixabay.com/photo/2021/07/24/20/04/mountains-6490271_960_720.jpg"
 }
 
 ### Read Resource Content By Type

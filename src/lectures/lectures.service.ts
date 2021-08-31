@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Lecture } from './entities/lecture.entity';
 import { LectureTag } from './entities/lectureTag.entity';
@@ -73,7 +73,7 @@ export class LecturesService {
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
-    return await this.lecturesRepository.save({
+    const lecture = await this.lecturesRepository.save({
       title: requestCreateLectureDto.title,
       description: requestCreateLectureDto.description,
       type: requestCreateLectureDto.type,
@@ -84,6 +84,14 @@ export class LecturesService {
         id: requestCreateLectureDto.teacherId,
       },
     });
+    for (const video of requestCreateLectureDto.videos) {
+      await this.videosRepository.save({
+        title: video.title,
+        url: video.url,
+        lecture: { id: lecture.id },
+      });
+    }
+    return lecture;
   }
 
   async readAllLectures() {
@@ -132,9 +140,6 @@ export class LecturesService {
             ])
             .orderBy('created_at', 'DESC')
             .getRawMany();
-          for (const tag of rawTags) {
-            tags.push(tag.name);
-          }
           const filteredReviews = reviews ? [...reviews] : [];
           const totalRating = getAverageRating(filteredReviews);
           responseLectures.push({
@@ -190,17 +195,13 @@ export class LecturesService {
         ])
         .orderBy('created_at', 'DESC')
         .getRawMany();
-      const rawVideos = await this.videosRepository
+      const videos = await this.videosRepository
         .createQueryBuilder('video')
         .innerJoin('video.lecture', 'lecture')
         .where('lecture.id = :lectureId', { lectureId: lecture.id })
-        .select(['video.url AS url'])
-        .orderBy('video.id', 'DESC')
+        .select(['video.id AS id'])
+        .orderBy('video.id', 'ASC')
         .getRawMany();
-      const videos = [];
-      for (const video of rawVideos) {
-        videos.push(video.url);
-      }
       const rawNotices = await this.noticesRepository
         .createQueryBuilder('notice')
         .innerJoin('notice.lecture', 'lecture')
@@ -231,6 +232,17 @@ export class LecturesService {
       }
       const filteredReviews = reviews ? [...reviews] : [];
       const totalRating = getAverageRating(filteredReviews);
+      const users = await this.studentLecturesRepository
+        .createQueryBuilder('student_lecture')
+        .innerJoin('student_lecture.user', 'apply_student')
+        .innerJoin('student_lecture.lecture', 'apply_lecture')
+        .where('apply_lecture.id = :lectureId', {
+          lectureId: +param.lectureId,
+        })
+        .andWhere('student_lecture.status = :status', {
+          status: CONST_LECTURE_STATUS.ACCEPT,
+        })
+        .getCount();
       return {
         id: lecture.id,
         title: lecture.title,
@@ -239,13 +251,13 @@ export class LecturesService {
         images: lecture.images,
         nickname: lecture.nickname,
         type: lecture.type,
-        status: null,
         expired: lecture.expired,
         videos,
         notices,
         tags,
         average_rating: totalRating,
         reviews: reviews ? reviews : [],
+        users,
       };
     } catch (error) {
       console.error(error);
@@ -297,17 +309,13 @@ export class LecturesService {
           'lecture.expiredAt AS expired',
         ])
         .getRawOne();
-      const rawVideos = await this.videosRepository
+      const videos = await this.videosRepository
         .createQueryBuilder('video')
         .innerJoin('video.lecture', 'lecture')
         .where('lecture.id = :lectureId', { lectureId: lecture.id })
-        .select(['video.url AS url'])
-        .orderBy('video.id', 'DESC')
+        .select(['video.id AS id'])
+        .orderBy('video.id', 'ASC')
         .getRawMany();
-      const videos = [];
-      for (const video of rawVideos) {
-        videos.push(video.url);
-      }
       const rawNotices = await this.noticesRepository
         .createQueryBuilder('notice')
         .innerJoin('notice.lecture', 'lecture')
@@ -337,6 +345,17 @@ export class LecturesService {
         tags.push(tag.name);
       }
       const totalRating = getAverageRating(reviews);
+      const users = await this.studentLecturesRepository
+        .createQueryBuilder('student_lecture')
+        .innerJoin('student_lecture.user', 'apply_student')
+        .innerJoin('student_lecture.lecture', 'apply_lecture')
+        .where('apply_lecture.id = :lectureId', {
+          lectureId: +param.lectureId,
+        })
+        .where('student_lecture.status = :status', {
+          status: CONST_LECTURE_STATUS.ACCEPT,
+        })
+        .getCount();
       return {
         id: lecture.id,
         title: lecture.title,
@@ -352,6 +371,152 @@ export class LecturesService {
         tags,
         average_rating: totalRating,
         reviews: reviews ? reviews : [],
+        users,
+      };
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async readLectureVideoByIdGuest(param: { lectureId: string }) {
+    try {
+      const lecture = await this.lecturesRepository
+        .createQueryBuilder('lecture')
+        .innerJoin('lecture.teacher', 'teacher')
+        .where('lecture.id = :lectureId', { lectureId: +param.lectureId })
+        .select([
+          'lecture.id AS id',
+          'lecture.title AS title',
+          'lecture.description AS description',
+          'lecture.thumbnail AS thumbnail',
+          'lecture.images AS images',
+          'teacher.nickname AS nickname',
+          'lecture.type AS type',
+          'lecture.expiredAt AS expired',
+        ])
+        .getRawOne();
+      const videos = await this.videosRepository
+        .createQueryBuilder('video')
+        .innerJoin('video.lecture', 'lecture')
+        .where('lecture.id = :lectureId', { lectureId: lecture.id })
+        .select(['video.id AS id', 'video.url AS url', 'video.title AS title'])
+        .orderBy('video.id', 'ASC')
+        .getRawMany();
+      const rawTags = await this.lectureTagsRepository
+        .createQueryBuilder('lecture_tag')
+        .innerJoin('lecture_tag.lecture', 'lecture')
+        .innerJoin('lecture_tag.tag', 'tag')
+        .where('lecture.id = :lectureId', { lectureId: lecture.id })
+        .select(['tag.name AS name'])
+        .orderBy('tag.name', 'DESC')
+        .getRawMany();
+      const tags = [];
+      for (const tag of rawTags) {
+        tags.push(tag.name);
+      }
+      const users = await this.studentLecturesRepository
+        .createQueryBuilder('student_lecture')
+        .innerJoin('student_lecture.user', 'apply_student')
+        .innerJoin('student_lecture.lecture', 'apply_lecture')
+        .where('apply_lecture.id = :lectureId', {
+          lectureId: +param.lectureId,
+        })
+        .andWhere('student_lecture.status = :status', {
+          status: CONST_LECTURE_STATUS.ACCEPT,
+        })
+        .getCount();
+      return {
+        id: lecture.id,
+        title: lecture.title,
+        description: lecture.description,
+        thumbnail: lecture.thumbnail,
+        images: lecture.images,
+        nickname: lecture.nickname,
+        type: lecture.type,
+        status: null,
+        expired: lecture.expired,
+        videos,
+        tags,
+        users,
+      };
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async readLectureVideoById(req: Request, param: { lectureId: string }) {
+    try {
+      const user = await this.studentLecturesRepository
+        .createQueryBuilder('student_lecture')
+        .innerJoin('student_lecture.user', 'apply_student')
+        .innerJoin('student_lecture.lecture', 'apply_lecture')
+        .where('apply_student.id = :studentId', { studentId: +req.user })
+        .andWhere('apply_lecture.id = :lectureId', {
+          lectureId: +param.lectureId,
+        })
+        .select(['student_lecture.status AS status'])
+        .getRawOne();
+      const status = !user || !user.status ? null : user.status;
+      const lecture = await this.lecturesRepository
+        .createQueryBuilder('lecture')
+        .innerJoin('lecture.teacher', 'teacher')
+        .where('lecture.id = :lectureId', { lectureId: +param.lectureId })
+        .select([
+          'lecture.id AS id',
+          'lecture.title AS title',
+          'lecture.description AS description',
+          'lecture.thumbnail AS thumbnail',
+          'lecture.images AS images',
+          'teacher.nickname AS nickname',
+          'lecture.type AS type',
+          'lecture.expiredAt AS expired',
+        ])
+        .getRawOne();
+      const videos = await this.videosRepository
+        .createQueryBuilder('video')
+        .innerJoin('video.lecture', 'lecture')
+        .where('lecture.id = :lectureId', { lectureId: lecture.id })
+        .select(['video.id AS id', 'video.url AS url', 'video.title AS title'])
+        .orderBy('video.id', 'ASC')
+        .getRawMany();
+      const rawTags = await this.lectureTagsRepository
+        .createQueryBuilder('lecture_tag')
+        .innerJoin('lecture_tag.lecture', 'lecture')
+        .innerJoin('lecture_tag.tag', 'tag')
+        .where('lecture.id = :lectureId', { lectureId: lecture.id })
+        .select(['tag.name AS name'])
+        .orderBy('tag.name', 'DESC')
+        .getRawMany();
+      const tags = [];
+      for (const tag of rawTags) {
+        tags.push(tag.name);
+      }
+      const users = await this.studentLecturesRepository
+        .createQueryBuilder('student_lecture')
+        .innerJoin('student_lecture.user', 'apply_student')
+        .innerJoin('student_lecture.lecture', 'apply_lecture')
+        .where('apply_lecture.id = :lectureId', {
+          lectureId: +param.lectureId,
+        })
+        .andWhere('student_lecture.status = :status', {
+          status: CONST_LECTURE_STATUS.ACCEPT,
+        })
+        .getCount();
+      return {
+        id: lecture.id,
+        title: lecture.title,
+        description: lecture.description,
+        thumbnail: lecture.thumbnail,
+        images: lecture.images,
+        nickname: lecture.nickname,
+        type: lecture.type,
+        status,
+        expired: lecture.expired,
+        videos,
+        tags,
+        users,
       };
     } catch (error) {
       console.error(error);
@@ -367,8 +532,8 @@ export class LecturesService {
         .innerJoin('student_lecture.lecture', 'apply_lecture')
         .innerJoin('apply_lecture.teacher', 'lecture_teacher')
         .where('apply_student.id = :studentId', { studentId: +req.user })
-        .andWhere('student_lecture.status = :status', {
-          status: CONST_LECTURE_STATUS.APPLY,
+        .andWhere('student_lecture.status IN (:...statuses)', {
+          statuses: [CONST_LECTURE_STATUS.APPLY, CONST_LECTURE_STATUS.ACCEPT],
         })
         .select([
           'apply_lecture.id AS id',
@@ -419,6 +584,7 @@ export class LecturesService {
             thumbnail: lecture.thumbnail,
             nickname: lecture.nickname,
             type: lecture.type,
+            status: lecture.status,
             expired: lecture.expired,
             tags,
             average_rating: totalRating,
@@ -476,6 +642,29 @@ export class LecturesService {
       review: requestRegisterReviewDto.review,
       rating: requestRegisterReviewDto.rating,
     });
+  }
+
+  async readRecentReviews() {
+    try {
+      return await this.lectureReviewsRepository
+        .createQueryBuilder('lecture_review')
+        .innerJoin('lecture_review.lecture', 'review_lecture')
+        .innerJoin('lecture_review.student', 'review_student')
+        .select([
+          'lecture_review.createdAt AS created_at',
+          'review_student.id AS id',
+          'review_student.nickname AS nickname',
+          'review_lecture.title AS title',
+          'lecture_review.review AS review',
+          'lecture_review.rating AS rating',
+        ])
+        .limit(5)
+        .orderBy('created_at', 'DESC')
+        .getRawMany();
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }
 
   async createTag(req: Request, requestCreateTagDto: { name: string }) {

@@ -74,7 +74,7 @@ export class Lecture extends Common {
   })
   @IsArray()
   @IsOptional()
-  @Column('varchar', { default: [] })
+  @Column('varchar', { array: true, default: [] })
   images: string[];
 
   @ApiProperty({

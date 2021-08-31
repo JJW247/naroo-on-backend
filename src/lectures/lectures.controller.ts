@@ -51,6 +51,20 @@ export class LecturesController {
     return await this.lecturesService.readLectureById(req, param);
   }
 
+  @Get('/guest/video/:lectureId')
+  async readLectureVideoByIdGuest(@Param() param: { lectureId: string }) {
+    return await this.lecturesService.readLectureVideoByIdGuest(param);
+  }
+
+  @Get('/video/:lectureId')
+  @UseGuards(JwtAuthGuard)
+  async readLectureVideoById(
+    @Req() req: Request,
+    @Param() param: { lectureId: string },
+  ) {
+    return await this.lecturesService.readLectureVideoById(req, param);
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   async readLectures(@Req() req: Request) {
@@ -92,6 +106,11 @@ export class LecturesController {
       req,
       requestRegisterReviewDto,
     );
+  }
+
+  @Get('/review/recent')
+  async readRecentReviews() {
+    return await this.lecturesService.readRecentReviews();
   }
 
   @Post('/tag/create')

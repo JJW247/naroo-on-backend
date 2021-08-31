@@ -45,4 +45,11 @@ export class RequestCreateLectureDto {
   @IsArray()
   @IsOptional()
   tags: number[];
+
+  @IsArray()
+  @IsNotEmpty()
+  videos: {
+    url: string;
+    title: string;
+  }[];
 }
