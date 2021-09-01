@@ -4,18 +4,21 @@ authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxN
 content-type: application/json
 
 {
-    "title": "강의 1",
-    "description": "테스트용 강의 1번 입니다!",
-    "teacherId": 6,
+    "title": "[C++과 언리얼로 만드는 MMORPG 게임 개발 시리즈] Part1: C++ 프로그래밍 입문",
+    "description": "입문자를 위해 준비한
+[프로그래밍 언어, 게임 개발] 강의입니다.",
+    "teacherId": 4,
+    "thumbnail" : "https://cdn.inflearn.com/public/courses/326162/cover/fe5368b1-e25b-4f7c-a670-b775f9e429c6",
+    "images" : ["https://cdn.inflearn.com/public/files/courses/326162/1e7c3880-f674-413d-9d2c-f2b25668b637/326162-2.jpg", "https://cdn.inflearn.com/public/files/courses/326162/37c800b3-900c-4f72-8572-7f4923d3308e/326162-0.gif"],
     "videos": [{
         "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
-        "title" : "1강 : 소개"
+        "title" : "소개"
     },{
         "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
-        "title" : "2강 : 도입부"
+        "title" : "도입부"
     },{
         "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
-        "title" : "3강 : 마무리"
+        "title" : "마무리"
     }]
 }
 
@@ -63,7 +66,7 @@ content-type: application/json
 GET http://localhost:3010/lecture/review
 
 ### Create Tag
-POST http://localhost:3010/lecture/tag/create
+POST http://localhost:3010/lecture/admin/tag/create
 authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMTc0MTU3fQ.prDHDjF_4yZNRiEQS7W1TIjhJL533UQlDsac_0TTBrc
 content-type: application/json
 
@@ -87,50 +90,95 @@ authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxN
 
 
 
+
 ### For Dummy Data
 POST http://localhost:3010/lecture/create
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTYyOTk1NDUwMn0.ipfoU53a29vMJX34gL3wAZ-42op7LSTV9t-l5rE8GIQ
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwNDcyNzE2fQ.1NE5XVctnWDClMgjtm75cImqlfa8NPcLtpp3ayp_Eww
 content-type: application/json
 
 {
     "title": "[C++과 언리얼로 만드는 MMORPG 게임 개발 시리즈] Part1: C++ 프로그래밍 입문",
-    "thumbnail":"https://cdn.inflearn.com/public/courses/326162/cover/fe5368b1-e25b-4f7c-a670-b775f9e429c6",
-    "description": "테스트용 강의 1번 입니다!",
-    "teacherId": 14
+    "thumbnail" : "https://cdn.inflearn.com/public/courses/326162/cover/fe5368b1-e25b-4f7c-a670-b775f9e429c6",
+    "description": "입문자를 위해 준비한 [프로그래밍 언어, 게임 개발] 강의입니다.",
+    "teacherId": 4,
+    "images" : ["https://cdn.inflearn.com/public/files/courses/326162/1e7c3880-f674-413d-9d2c-f2b25668b637/326162-2.jpg", "https://cdn.inflearn.com/public/files/courses/326162/37c800b3-900c-4f72-8572-7f4923d3308e/326162-0.gif"],
+    "videos": [{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "소개"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "도입부"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "마무리"
+    }]
 }
 
 ### For Dummy Data
 POST http://localhost:3010/lecture/create
 content-type: application/json
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTYyOTk1NDUwMn0.ipfoU53a29vMJX34gL3wAZ-42op7LSTV9t-l5rE8GIQ
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwNDcyNzE2fQ.1NE5XVctnWDClMgjtm75cImqlfa8NPcLtpp3ayp_Eww
 
 {
     "title": "UIKit - iOS14 실무 가이드 <iOS앱 진짜 개발자 되기>",
     "thumbnail":"https://cdn.inflearn.com/public/courses/327148/cover/f14566b3-1845-48ee-af5f-86555dd273a4/327148-eng.png",
-    "description": "테스트용 강의 2번 입니다!",
-    "teacherId": 16
+    "description": "입문자를 위해 준비한 [모바일 앱 개발] 강의입니다. UIKit - iOS14 실무 앱 가이드 입문자를 위한 기초부터 탄탄한 설명을 준비했습니다. 경력자들도 놓치기 쉬운 개념들을 확실하게 잡아드립니다. 실무에서 만들어지는 앱을 확실하게 배울 수 있도록 정성스럽게 준비했습니다.",
+    "teacherId": 5,
+    "images" : ["https://cdn.inflearn.com/public/files/courses/327148/149a3049-a002-49d2-be01-cce6b1872683/4342981.png", "https://cdn.inflearn.com/public/files/courses/327148/33b36f84-2f60-4a63-9326-26abb9114540/Apple%20Setting.gif", "https://cdn.inflearn.com/public/files/courses/327148/3b5f73a5-6c9c-4ad9-9ec8-6609490c2d4e/movie.gif"],
+    "videos": [{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "소개"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "도입부"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "마무리"
+    }]
 }
 
 ### For Dummy Data
 POST http://localhost:3010/lecture/create
 content-type: application/json
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTYyOTk1NDUwMn0.ipfoU53a29vMJX34gL3wAZ-42op7LSTV9t-l5rE8GIQ
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwNDcyNzE2fQ.1NE5XVctnWDClMgjtm75cImqlfa8NPcLtpp3ayp_Eww
 
 {
     "title": "엑셀 시작하기 : EXCEL 입문(Inflearn Original)",
     "thumbnail":"https://cdn.inflearn.com/public/courses/326489/cover/6bc2da6b-d7a9-46f9-932c-46cf8deba0af",
-    "description": "테스트용 강의 3번 입니다!",
-    "teacherId": 17
+    "description": "입문자를 위해 준비한 [오피스] 강의입니다. 업무에 가치를 더할 수 있는 데이터 분석 도구로써의 엑셀을 만날 수 있습니다. 기초부터 넓고 꼼꼼하게 개념 위주로 학습할 수 있는 엑셀 기본 강의입니다.",
+    "teacherId": 6,
+    "images" : ["https://cdn.inflearn.com/public/files/courses/326318/71e289d0-0a52-4fb7-8686-eeeb7b5d74d6/326432-18.png", "https://cdn.inflearn.com/public/files/courses/326318/31d3288e-9323-42d2-bf89-bc95f31916aa/326432-17.png","https://cdn.inflearn.com/public/files/courses/326318/b54f2827-7555-47ab-a70e-371f431e18a5/326432-16.png","https://cdn.inflearn.com/public/files/courses/326318/0c071a77-0e50-41f4-ae8b-33f93cc7bc2a/326432-15.png","https://cdn.inflearn.com/public/files/courses/326318/759d03ed-2c29-48aa-b6bb-5b31b785653f/326432-19.png",""],
+    "videos": [{
+        "url" : "https://www.youtube.com/embed/B_SwS5YIDoY",
+        "title" : "소개"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "도입부"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "마무리"
+    }]
 }
 
 ### For Dummy Data
 POST http://localhost:3010/lecture/create
 content-type: application/json
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTYyOTk1NDUwMn0.ipfoU53a29vMJX34gL3wAZ-42op7LSTV9t-l5rE8GIQ
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwNDcyNzE2fQ.1NE5XVctnWDClMgjtm75cImqlfa8NPcLtpp3ayp_Eww
 
 {
     "title": "비전공자를 위한 개발자 취업 올인원 가이드 [통합편]",
     "thumbnail":"https://cdn.inflearn.com/public/courses/326354/cover/1d6f78c0-86a5-4585-b7f5-49d57582e964",
-    "description": "테스트용 강의 4번 입니다!",
-    "teacherId": 18
+    "description": "입문자를 위해 준비한 [개발 · 프로그래밍, 취업 · 이직] 강의입니다. 체육을 전공하고 29살에 개발 공부를 시작해서, 30살에 연봉 4천만원, 31살에 연봉 x천만원 이상 받는 탑티어 회사 개발자가 된 노하우를 모두 담았습니다!",
+    "teacherId": 7,
+    "images" : ["https://cdn.inflearn.com/public/files/courses/326354/e0eaa7c7-9458-4f23-ab58-2a34aaa7e5c4/326354-0.jpg", "https://cdn.inflearn.com/public/files/courses/326354/23071472-cbf9-4346-8dce-ca054ac458ca/326354-1.jpg", "https://cdn.inflearn.com/public/files/courses/326354/04b85616-3878-4d32-b87a-2c0ed70426d7/%E1%84%8C%E1%85%AE%E1%86%AB%E1%84%87%E1%85%B5%E1%84%92%E1%85%A1%E1%84%80%E1%85%B5_%E1%84%8E%E1%85%AC%E1%84%8C%E1%85%A9%E1%86%BC.png","https://cdn.inflearn.com/public/files/courses/326354/cfede619-bb94-4db5-8407-da5e62f3adc9/%E1%84%92%E1%85%A1%E1%86%A8%E1%84%89%E1%85%B3%E1%86%B8%E1%84%92%E1%85%A1%E1%84%80%E1%85%B51_%E1%84%8E%E1%85%AC%E1%84%8C%E1%85%A9%E1%86%BC.png","https://cdn.inflearn.com/public/files/courses/326354/2716cc87-805e-4c6b-b9db-5fe06dbb1ec6/%E1%84%8E%E1%85%B1%E1%84%8B%E1%85%A5%E1%86%B8%E1%84%92%E1%85%A1%E1%84%80%E1%85%B52_%E1%84%8E%E1%85%AC%E1%84%8C%E1%85%A9%E1%86%BC.png","https://cdn.inflearn.com/public/files/courses/326354/67808206-3368-42de-9632-9cc899000f45/%E1%84%87%E1%85%AE%E1%84%85%E1%85%A9%E1%86%A8_%E1%84%8E%E1%85%AC%E1%84%8C%E1%85%A9%E1%86%BC.png"],
+    "videos": [{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "소개"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "도입부"
+    },{
+        "url" : "https://player.vimeo.com/video/587581144?h=e542768ad0",
+        "title" : "마무리"
+    }]
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -26,6 +27,7 @@ export class LecturesController {
     @Req() req: Request,
     @Body() requestCreateLectureDto: RequestCreateLectureDto,
   ): Promise<ResponseCreateLectureDto | string> {
+    console.log(requestCreateLectureDto);
     return await this.lecturesService.createLecture(
       req,
       requestCreateLectureDto,
@@ -113,7 +115,7 @@ export class LecturesController {
     return await this.lecturesService.readRecentReviews();
   }
 
-  @Post('/tag/create')
+  @Post('admin/tag/create')
   @UseGuards(JwtAuthGuard)
   async createTag(
     @Req() req: Request,
@@ -131,6 +133,22 @@ export class LecturesController {
   @Get('/tag/:lectureId')
   async readTags(@Param() param: { lectureId: string }) {
     return await this.lecturesService.readTags(param);
+  }
+
+  @Put('/admin/tag/:tagId')
+  @UseGuards(JwtAuthGuard)
+  async updateTag(
+    @Param() param: { tagId: string },
+    @Req() req: Request,
+    @Body() updateTagDto: { tagName: string },
+  ) {
+    return await this.lecturesService.updateTag(param, req, updateTagDto);
+  }
+
+  @Delete('/admin/tag/:tagId')
+  @UseGuards(JwtAuthGuard)
+  async deleteTag(@Param() param: { tagId: string }, @Req() req: Request) {
+    return await this.lecturesService.deleteTag(param, req);
   }
 
   @Put('/tag/:lectureId')
