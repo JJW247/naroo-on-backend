@@ -752,7 +752,8 @@ export class LecturesService {
         id: +param.tagId,
       },
     });
-    return await this.tagsRepository.delete(tag);
+    const result = await this.tagsRepository.delete({ id: tag.id });
+    return result.affected === 1 ? { ok: true } : { ok: false };
   }
 
   async registerTag(
