@@ -2,12 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { Lecture } from './entities/lecture.entity';
+import { Lecture, LECTURE_TYPE } from './entities/lecture.entity';
 import { LectureTag } from './entities/lectureTag.entity';
 import { Notice } from './entities/notice.entity';
 import { Question } from './entities/question.entity';
 import {
   CONST_LECTURE_STATUS,
+  LECTURE_STATUS,
   StudentLecture,
 } from './entities/studentLecture.entity';
 import { Tag } from './entities/tag.entity';
@@ -94,6 +95,53 @@ export class LecturesService {
     return lecture;
   }
 
+  async updateLectureInfo(
+    param: { lectureId: string },
+    req: Request,
+    updateLectureInfoDto: {
+      thumbnail: string | null;
+      type: LECTURE_TYPE | null;
+      expired: Date | null;
+      title: string | null;
+      description: string | null;
+    },
+  ) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: +req.user,
+      },
+      select: ['role'],
+    });
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
+    ) {
+      throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
+    }
+    const existLecture = await this.lecturesRepository.findOne({
+      where: {
+        id: +param.lectureId,
+      },
+    });
+    existLecture.thumbnail = updateLectureInfoDto.thumbnail
+      ? updateLectureInfoDto.thumbnail
+      : existLecture.thumbnail;
+    existLecture.type = updateLectureInfoDto.type
+      ? updateLectureInfoDto.type
+      : existLecture.type;
+    existLecture.expiredAt = updateLectureInfoDto.expired
+      ? updateLectureInfoDto.expired
+      : existLecture.expiredAt;
+    existLecture.title = updateLectureInfoDto.title
+      ? updateLectureInfoDto.title
+      : existLecture.title;
+    existLecture.description = updateLectureInfoDto.description
+      ? updateLectureInfoDto.description
+      : existLecture.description;
+    // 강사, 이미지 array, 영상 array
+    return await this.lecturesRepository.save(existLecture);
+  }
+
   async readAllLectures() {
     const allLectures = await this.lecturesRepository
       .createQueryBuilder('lecture')
@@ -101,6 +149,7 @@ export class LecturesService {
       .select([
         'lecture.id AS id',
         'lecture.title AS title',
+        'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
         'teacher.nickname AS nickname',
         'lecture.type AS type',
@@ -111,18 +160,14 @@ export class LecturesService {
     const responseLectures = [];
     await allLectures.reduce(async (prevPromise, lecture) => {
       return prevPromise.then(async () => {
-        const rawTags = await this.lectureTagsRepository
+        const tags = await this.lectureTagsRepository
           .createQueryBuilder('lecture_tag')
           .innerJoin('lecture_tag.lecture', 'lecture')
           .innerJoin('lecture_tag.tag', 'tag')
           .where('lecture.id = :lectureId', { lectureId: lecture.id })
-          .select(['tag.name AS name'])
+          .select(['tag.id AS id', 'tag.name AS name'])
           .orderBy('tag.name', 'DESC')
           .getRawMany();
-        const tags = [];
-        for (const tag of rawTags) {
-          tags.push(tag.name);
-        }
         const reviews = await this.lectureReviewsRepository
           .createQueryBuilder('lecture_review')
           .innerJoin('lecture_review.lecture', 'review_lecture')
@@ -144,6 +189,7 @@ export class LecturesService {
         responseLectures.push({
           id: lecture.id,
           title: lecture.title,
+          description: lecture.description,
           thumbnail: lecture.thumbnail,
           nickname: lecture.nickname,
           type: lecture.type,
@@ -196,22 +242,20 @@ export class LecturesService {
       .select(['video.id AS id'])
       .orderBy('video.id', 'ASC')
       .getRawMany();
-    const rawNotices = await this.noticesRepository
+    const notices = await this.noticesRepository
       .createQueryBuilder('notice')
       .innerJoin('notice.lecture', 'lecture')
       .where('lecture.id = :lectureId', {
         lectureId: lecture.id,
       })
-      .select(['notice.title AS title', 'notice.description AS description'])
+      .select([
+        'notice.id AS id',
+        'notice.createdAt AS created_at',
+        'notice.title AS title',
+        'notice.description AS description',
+      ])
       .orderBy('notice.id', 'DESC')
       .getRawMany();
-    const notices = [];
-    for (const notice of rawNotices) {
-      notices.push({
-        title: notice.title,
-        description: notice.description,
-      });
-    }
     const rawTags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
@@ -305,22 +349,20 @@ export class LecturesService {
       .select(['video.id AS id'])
       .orderBy('video.id', 'ASC')
       .getRawMany();
-    const rawNotices = await this.noticesRepository
+    const notices = await this.noticesRepository
       .createQueryBuilder('notice')
       .innerJoin('notice.lecture', 'lecture')
       .where('lecture.id = :lectureId', {
         lectureId: lecture.id,
       })
-      .select(['notice.title AS title', 'notice.description AS description'])
+      .select([
+        'notice.id AS id',
+        'notice.createdAt AS created_at',
+        'notice.title AS title',
+        'notice.description AS description',
+      ])
       .orderBy('notice.id', 'DESC')
       .getRawMany();
-    const notices = [];
-    for (const notice of rawNotices) {
-      notices.push({
-        title: notice.title,
-        description: notice.description,
-      });
-    }
     const rawTags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
@@ -500,7 +542,7 @@ export class LecturesService {
   }
 
   async readLectures(req: Request) {
-    const approvedLectures = await this.studentLecturesRepository
+    const lectureOnStatuses = await this.studentLecturesRepository
       .createQueryBuilder('student_lecture')
       .innerJoin('student_lecture.user', 'apply_student')
       .innerJoin('student_lecture.lecture', 'apply_lecture')
@@ -521,7 +563,7 @@ export class LecturesService {
       .orderBy('apply_lecture.title', 'DESC')
       .getRawMany();
     const responseApprovedLectures = [];
-    await approvedLectures.reduce(async (prevPromise, lecture) => {
+    await lectureOnStatuses.reduce(async (prevPromise, lecture) => {
       return prevPromise.then(async () => {
         const rawTags = await this.lectureTagsRepository
           .createQueryBuilder('lecture_tag')
@@ -569,10 +611,42 @@ export class LecturesService {
     return responseApprovedLectures;
   }
 
+  async readLectureStatuses(req: Request) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: +req.user,
+      },
+      select: ['role'],
+    });
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
+    ) {
+      throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
+    }
+    return await this.studentLecturesRepository
+      .createQueryBuilder('student_lecture')
+      .innerJoin('student_lecture.user', 'apply_student')
+      .innerJoin('student_lecture.lecture', 'apply_lecture')
+      .innerJoin('apply_lecture.teacher', 'lecture_teacher')
+      .select([
+        'apply_student.id AS student_id',
+        'apply_lecture.id AS lecture_id',
+        'apply_lecture.title AS title',
+        'apply_lecture.thumbnail AS thumbnail',
+        'lecture_teacher.nickname AS nickname',
+        'apply_lecture.type AS type',
+        'student_lecture.status AS status',
+        'apply_lecture.expiredAt AS expired',
+      ])
+      .orderBy('apply_lecture.title', 'DESC')
+      .getRawMany();
+  }
+
   async registerLecture(param: { lectureId: string }, req: Request) {
     const user = await this.usersRepository.findOne({
       where: {
-        id: req.user,
+        id: +req.user,
       },
       select: ['role'],
     });
@@ -589,10 +663,11 @@ export class LecturesService {
     });
   }
 
-  async approveLecture(
+  async updateLectureStatus(
     pathParam: { lectureId: string },
     req: Request,
     queryParam: { userId: string },
+    requestUpdateLectureStatus: { status: LECTURE_STATUS },
   ) {
     const user = await this.usersRepository.findOne({
       where: {
@@ -609,7 +684,7 @@ export class LecturesService {
     return await this.studentLecturesRepository.save({
       user: { id: +queryParam.userId },
       lecture: { id: +pathParam.lectureId },
-      status: CONST_LECTURE_STATUS.ACCEPT,
+      status: requestUpdateLectureStatus.status,
     });
   }
 
@@ -620,7 +695,7 @@ export class LecturesService {
   ) {
     const user = await this.usersRepository.findOne({
       where: {
-        id: req.user,
+        id: +req.user,
       },
       select: ['role'],
     });
@@ -630,6 +705,27 @@ export class LecturesService {
     ) {
       throw new HttpException(
         '리뷰 등록은 학생만 가능합니다!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    const existReview = await this.lectureReviewsRepository
+      .createQueryBuilder('lecture_review')
+      .innerJoin('lecture_review.lecture', 'review_lecture')
+      .innerJoin('lecture_review.student', 'review_student')
+      .where('review_lecture.id = :lectureId', {
+        lectureId: +param.lectureId,
+      })
+      .where('review_student.id = :studentId', {
+        studentId: +req.user,
+      })
+      .select([
+        'lecture_review.review AS review',
+        'lecture_review.rating AS rating',
+      ])
+      .getRawOne();
+    if (existReview) {
+      throw new HttpException(
+        '이미 등록된 강의 리뷰가 존재합니다!',
         HttpStatus.FORBIDDEN,
       );
     }
@@ -759,7 +855,7 @@ export class LecturesService {
   async registerTag(
     req: Request,
     pathParam: { lectureId: string },
-    queryParam: { ids: string[] },
+    registerTagDto: { ids: string[] },
   ) {
     const user = await this.usersRepository.findOne({
       where: {
@@ -774,13 +870,13 @@ export class LecturesService {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
 
-    if (queryParam.ids.length <= 0) {
+    if (registerTagDto.ids.length <= 0) {
       return { ok: false };
     }
 
-    const ids = Array.isArray(queryParam.ids)
-      ? queryParam.ids
-      : [queryParam.ids];
+    const ids = Array.isArray(registerTagDto.ids)
+      ? registerTagDto.ids
+      : [registerTagDto.ids];
 
     const existTags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
@@ -813,14 +909,14 @@ export class LecturesService {
     return { ok: true };
   }
 
-  async createNotice(
-    param: { lectureId: string },
+  async unregisterTag(
     req: Request,
-    requestCreateNoticeDto: { title: string; description: string },
+    pathParam: { lectureId: string },
+    unregisterTagDto: { id: string },
   ) {
     const user = await this.usersRepository.findOne({
       where: {
-        id: req.user,
+        id: +req.user,
       },
       select: ['role'],
     });
@@ -829,6 +925,64 @@ export class LecturesService {
       user.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
+    }
+
+    const existTag = await this.lectureTagsRepository
+      .createQueryBuilder('lecture_tag')
+      .innerJoin('lecture_tag.lecture', 'lecture')
+      .innerJoin('lecture_tag.tag', 'tag')
+      .where('lecture.id = :lectureId', { lectureId: pathParam.lectureId })
+      .where('tag.id = :tagId', { tagId: unregisterTagDto.id })
+      .select(['lecture.id AS lecture_id', 'tag.id AS tag_id'])
+      .getRawOne();
+
+    if (!existTag) {
+      throw new HttpException(
+        '존재하지 않는 태그입니다!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const result = await this.lectureTagsRepository.delete({
+      lecture: { id: existTag.lecture_id },
+      tag: { id: existTag.tag_id },
+    });
+    return result.affected === 1 ? { ok: true } : { ok: false };
+  }
+
+  async createNotice(
+    param: { lectureId: string },
+    req: Request,
+    requestCreateNoticeDto: { title: string; description: string },
+  ) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: +req.user,
+      },
+      select: ['role'],
+    });
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
+    ) {
+      throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
+    }
+    const lecture = await this.lecturesRepository
+      .createQueryBuilder('lecture')
+      .innerJoin('lecture.teacher', 'lecture_teacher')
+      .where('lecture.id = :lectureId', { lectureId: +param.lectureId })
+      .select(['lecture_teacher.id AS teacher_id'])
+      .getRawOne();
+    if (
+      (typeof user.role === typeof CONST_ROLE_TYPE &&
+        user.role !== CONST_ROLE_TYPE.TEACHER) ||
+      (user.role === CONST_ROLE_TYPE.TEACHER &&
+        lecture.teacher_id !== +req.user)
+    ) {
+      throw new HttpException(
+        '해당 강의에 대한 권한이 없습니다!',
+        HttpStatus.FORBIDDEN,
+      );
     }
     return await this.noticesRepository.save({
       lecture: { id: +param.lectureId },

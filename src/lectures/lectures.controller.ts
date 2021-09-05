@@ -16,6 +16,8 @@ import { ResponseCreateLectureDto } from './dtos/response/responseCreateLecture.
 import { LecturesService } from './lectures.service';
 import { Request } from 'express';
 import { RATING_TYPE } from './entities/lectureReview.entity';
+import { LECTURE_STATUS } from './entities/studentLecture.entity';
+import { LECTURE_TYPE } from './entities/lecture.entity';
 
 @Controller('lecture')
 export class LecturesController {
@@ -31,6 +33,27 @@ export class LecturesController {
     return await this.lecturesService.createLecture(
       req,
       requestCreateLectureDto,
+    );
+  }
+
+  @Put('/admin/:lectureId')
+  @UseGuards(JwtAuthGuard)
+  async updateLectureInfo(
+    @Param() param: { lectureId: string },
+    @Req() req: Request,
+    @Body()
+    updateLectureInfoDto: {
+      thumbnail: string | null;
+      type: LECTURE_TYPE | null;
+      expired: Date | null;
+      title: string | null;
+      description: string | null;
+    },
+  ) {
+    return await this.lecturesService.updateLectureInfo(
+      param,
+      req,
+      updateLectureInfoDto,
     );
   }
 
@@ -73,6 +96,12 @@ export class LecturesController {
     return await this.lecturesService.readLectures(req);
   }
 
+  @Get('/admin/status')
+  @UseGuards(JwtAuthGuard)
+  async readLectureStatuses(@Req() req: Request) {
+    return await this.lecturesService.readLectureStatuses(req);
+  }
+
   @Put('/:lectureId')
   @UseGuards(JwtAuthGuard)
   async registerLecture(
@@ -84,15 +113,17 @@ export class LecturesController {
 
   @Put('/admin/:lectureId')
   @UseGuards(JwtAuthGuard)
-  async approveLecture(
+  async updateLectureStatus(
     @Param() pathParam: { lectureId: string },
     @Req() req: Request,
     @Query() queryParam: { userId: string },
+    @Body() requestUpdateLectureStatus: { status: LECTURE_STATUS },
   ) {
-    return await this.lecturesService.approveLecture(
+    return await this.lecturesService.updateLectureStatus(
       pathParam,
       req,
       queryParam,
+      requestUpdateLectureStatus,
     );
   }
 
@@ -115,7 +146,7 @@ export class LecturesController {
     return await this.lecturesService.readRecentReviews();
   }
 
-  @Post('admin/tag/create')
+  @Post('/admin/tag/create')
   @UseGuards(JwtAuthGuard)
   async createTag(
     @Req() req: Request,
@@ -156,12 +187,30 @@ export class LecturesController {
   async registerTag(
     @Req() req: Request,
     @Param() pathParam: { lectureId: string },
-    @Query() queryParam: { ids: string[] },
+    @Body() registerTagDto: { ids: string[] },
   ) {
-    return await this.lecturesService.registerTag(req, pathParam, queryParam);
+    return await this.lecturesService.registerTag(
+      req,
+      pathParam,
+      registerTagDto,
+    );
   }
 
-  @Post('/notice/create/:lectureId')
+  @Delete('/tag/:lectureId')
+  @UseGuards(JwtAuthGuard)
+  async unregisterTag(
+    @Req() req: Request,
+    @Param() pathParam: { lectureId: string },
+    @Query() unregisterTagDto: { id: string },
+  ) {
+    return await this.lecturesService.unregisterTag(
+      req,
+      pathParam,
+      unregisterTagDto,
+    );
+  }
+
+  @Put('/notice/:lectureId')
   @UseGuards(JwtAuthGuard)
   async createNotice(
     @Param() param: { lectureId: string },

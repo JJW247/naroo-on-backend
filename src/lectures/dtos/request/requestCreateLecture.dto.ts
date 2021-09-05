@@ -1,6 +1,6 @@
 import {
   IsArray,
-  IsDate,
+  IsDateString,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -34,7 +34,7 @@ export class RequestCreateLectureDto {
   @IsOptional()
   images: string[];
 
-  @IsDate()
+  @IsDateString()
   @IsOptional()
   expiredAt: Date;
 

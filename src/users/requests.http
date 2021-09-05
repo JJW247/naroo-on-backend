@@ -27,6 +27,15 @@ content-type: application/json
     "password" : "12341234"
 }
 
+### Signin by Teacher
+POST http://localhost:3010/auth/signin
+content-type: application/json
+
+{
+    "email" : "teacher1@test.com",
+    "password" : "12341234"
+}
+
 ### Get the current user information
 Get http://localhost:3010/auth/me
 

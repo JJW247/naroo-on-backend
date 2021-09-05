@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { CONST_ROLE_TYPE, User } from './entities/user.entity';
+import { CONST_ROLE_TYPE, ROLE_TYPE, User } from './entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dtos/signup.dto';
 import { SignInDto } from './dtos/signIn.dto';
@@ -97,6 +97,8 @@ export class UsersService {
   }
 
   async addTeacher(req: Request, addTeacherDto: AddTeacherDto) {
+    const hashedPassword = await bcrypt.hash(addTeacherDto.password, 10);
+
     const user = await this.usersRepository.findOne({
       where: {
         id: +req.user,
@@ -108,7 +110,7 @@ export class UsersService {
       return await this.usersRepository.save({
         email: addTeacherDto.email,
         nickname: addTeacherDto.nickname,
-        password: addTeacherDto.password,
+        password: hashedPassword,
         phone: addTeacherDto.phone,
         role: CONST_ROLE_TYPE.TEACHER,
         introduce: addTeacherDto.introduce,
@@ -131,7 +133,7 @@ export class UsersService {
         where: {
           role: CONST_ROLE_TYPE.TEACHER,
         },
-        select: ['nickname', 'introduce'],
+        select: ['id', 'email', 'nickname', 'phone', 'introduce'],
       });
       if (teachers.length === 0) {
         return null;
@@ -155,7 +157,7 @@ export class UsersService {
         where: {
           role: CONST_ROLE_TYPE.STUDENT,
         },
-        select: ['email', 'nickname'],
+        select: ['id', 'email', 'nickname', 'phone'],
       });
       if (students.length === 0) {
         return null;
@@ -164,5 +166,77 @@ export class UsersService {
     } else {
       return null;
     }
+  }
+
+  async updateUserInfo(
+    param: { userId: string },
+    req: Request,
+    updateUserInfoDto: {
+      email: string | null;
+      nickname: string | null;
+      password: string | null;
+      phone: string | null;
+      role: ROLE_TYPE | null;
+      introduce: string | null;
+    },
+  ) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: +req.user,
+      },
+      select: ['role'],
+    });
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
+    ) {
+      throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
+    }
+    const existUser = await this.usersRepository.findOne({
+      where: {
+        id: +param.userId,
+      },
+    });
+    existUser.email = updateUserInfoDto.email
+      ? updateUserInfoDto.email
+      : existUser.email;
+    existUser.nickname = updateUserInfoDto.nickname
+      ? updateUserInfoDto.nickname
+      : existUser.nickname;
+    existUser.password = updateUserInfoDto.password
+      ? await bcrypt.hash(updateUserInfoDto.password, 10)
+      : existUser.password;
+    existUser.phone = updateUserInfoDto.phone
+      ? updateUserInfoDto.phone
+      : existUser.phone;
+    existUser.role = updateUserInfoDto.role
+      ? updateUserInfoDto.role
+      : existUser.role;
+    existUser.introduce = updateUserInfoDto.introduce
+      ? updateUserInfoDto.introduce
+      : existUser.introduce;
+    return await this.usersRepository.save(existUser);
+  }
+
+  async deleteUser(param: { userId: string }, req: Request) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: +req.user,
+      },
+      select: ['role'],
+    });
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
+    ) {
+      throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
+    }
+    const existUser = await this.usersRepository.findOne({
+      where: {
+        id: +param.userId,
+      },
+    });
+    const result = await this.usersRepository.delete({ id: existUser.id });
+    return result.affected === 1 ? { ok: true } : { ok: false };
   }
 }

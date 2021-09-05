@@ -22,14 +22,6 @@ content-type: application/json
     }]
 }
 
-### Approve an existing lecture
-PATCH http://localhost:3010/lecture/update
-content-type: application/json
-
-{
-    "approved": false
-}
-
 ### Read All Lectures
 GET http://localhost:3010/lecture/all
 
@@ -48,9 +40,14 @@ authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6M
 PUT http://localhost:3010/lecture/8
 authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjMwMjEzMDA1fQ.2yMcYBreV3FhG9aqk0qS0NqpA6ySBcxzi6uevo1FQNY
 
-### Approve Lecture
-PUT http://localhost:3010/lecture/admin/3?userId=15
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTYzMDI4MjcwM30.Thl7zfBnvmEhyxl6KFGr7z2yv8mswM1DyVGSDcx3GFY
+### Update Lecture Status
+PUT http://localhost:3010/lecture/admin/7?userId=7
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwNzgxMzY4fQ.iG9rjgo9bfG7g0Wzyd9-FPjoo_bicA2QOKGKQ8zUhAg
+content-type: application/json
+
+{
+    "status": "apply"
+}
 
 ### Register Review
 PUT http://localhost:3010/lecture/review/2
@@ -85,7 +82,15 @@ GET http://localhost:3010/lecture/tag/5
 PUT http://localhost:3010/lecture/tag/7?ids=13
 authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMTc0MTU3fQ.prDHDjF_4yZNRiEQS7W1TIjhJL533UQlDsac_0TTBrc
 
+### Register Notice
+PUT http://localhost:3010/lecture/notice/12
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNjMwODE2NTc3fQ.kXkW4OtS8DxGoXG5fdka_vMNAPl3sb6Ehy_UVp-aVWw
+content-type: application/json
 
+{
+    "title": "공지사항 권한 관련 제목 테스트3입니다.",
+    "description": "공지사항 내용테스트3입니다."
+}
 
 
 
