@@ -111,7 +111,7 @@ export class LecturesController {
     return await this.lecturesService.registerLecture(param, req);
   }
 
-  @Put('/admin/:lectureId')
+  @Put('/admin/status/:lectureId')
   @UseGuards(JwtAuthGuard)
   async updateLectureStatus(
     @Param() pathParam: { lectureId: string },

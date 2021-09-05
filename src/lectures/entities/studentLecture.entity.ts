@@ -59,6 +59,7 @@ export class StudentLecture {
   @Column('enum', {
     enum: CONST_LECTURE_STATUS,
     default: null,
+    nullable: true,
   })
   status: LECTURE_STATUS;
 }
