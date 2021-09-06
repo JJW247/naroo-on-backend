@@ -659,7 +659,7 @@ export class LecturesService {
       .where('review_lecture.id = :lectureId', {
         lectureId: +param.lectureId,
       })
-      .where('review_student.id = :studentId', {
+      .andWhere('review_student.id = :studentId', {
         studentId: +req.user,
       })
       .select([
