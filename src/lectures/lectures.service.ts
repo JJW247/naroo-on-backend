@@ -142,6 +142,28 @@ export class LecturesService {
     return await this.lecturesRepository.save(existLecture);
   }
 
+  async deleteLecture(param: { lectureId: string }, req: Request) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: +req.user,
+      },
+      select: ['role'],
+    });
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
+    ) {
+      throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
+    }
+    const lecture = await this.lecturesRepository.findOne({
+      where: {
+        id: +param.lectureId,
+      },
+    });
+    const result = await this.lecturesRepository.delete({ id: lecture.id });
+    return result.affected === 1 ? { ok: true } : { ok: false };
+  }
+
   async readAllLectures() {
     const allLectures = await this.lecturesRepository
       .createQueryBuilder('lecture')
@@ -256,18 +278,14 @@ export class LecturesService {
       ])
       .orderBy('notice.id', 'DESC')
       .getRawMany();
-    const rawTags = await this.lectureTagsRepository
+    const tags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
       .innerJoin('lecture_tag.tag', 'tag')
       .where('lecture.id = :lectureId', { lectureId: lecture.id })
-      .select(['tag.name AS name'])
+      .select(['tag.id AS id', 'tag.name AS name'])
       .orderBy('tag.name', 'DESC')
       .getRawMany();
-    const tags = [];
-    for (const tag of rawTags) {
-      tags.push(tag.name);
-    }
     const filteredReviews = reviews ? [...reviews] : [];
     const totalRating = getAverageRating(filteredReviews);
     const users = await this.studentLecturesRepository
@@ -363,18 +381,14 @@ export class LecturesService {
       ])
       .orderBy('notice.id', 'DESC')
       .getRawMany();
-    const rawTags = await this.lectureTagsRepository
+    const tags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
       .innerJoin('lecture_tag.tag', 'tag')
       .where('lecture.id = :lectureId', { lectureId: lecture.id })
-      .select(['tag.name AS name'])
+      .select(['tag.id AS id', 'tag.name AS name'])
       .orderBy('tag.name', 'DESC')
       .getRawMany();
-    const tags = [];
-    for (const tag of rawTags) {
-      tags.push(tag.name);
-    }
     const totalRating = getAverageRating(reviews);
     const users = await this.studentLecturesRepository
       .createQueryBuilder('student_lecture')
@@ -402,68 +416,6 @@ export class LecturesService {
       tags,
       average_rating: totalRating,
       reviews: reviews ? reviews : [],
-      users,
-    };
-  }
-
-  async readLectureVideoByIdGuest(param: { lectureId: string }) {
-    const lecture = await this.lecturesRepository
-      .createQueryBuilder('lecture')
-      .innerJoin('lecture.teacher', 'teacher')
-      .where('lecture.id = :lectureId', { lectureId: +param.lectureId })
-      .select([
-        'lecture.id AS id',
-        'lecture.title AS title',
-        'lecture.description AS description',
-        'lecture.thumbnail AS thumbnail',
-        'lecture.images AS images',
-        'teacher.nickname AS nickname',
-        'lecture.type AS type',
-        'lecture.expiredAt AS expired',
-      ])
-      .getRawOne();
-    const videos = await this.videosRepository
-      .createQueryBuilder('video')
-      .innerJoin('video.lecture', 'lecture')
-      .where('lecture.id = :lectureId', { lectureId: lecture.id })
-      .select(['video.id AS id', 'video.url AS url', 'video.title AS title'])
-      .orderBy('video.id', 'ASC')
-      .getRawMany();
-    const rawTags = await this.lectureTagsRepository
-      .createQueryBuilder('lecture_tag')
-      .innerJoin('lecture_tag.lecture', 'lecture')
-      .innerJoin('lecture_tag.tag', 'tag')
-      .where('lecture.id = :lectureId', { lectureId: lecture.id })
-      .select(['tag.name AS name'])
-      .orderBy('tag.name', 'DESC')
-      .getRawMany();
-    const tags = [];
-    for (const tag of rawTags) {
-      tags.push(tag.name);
-    }
-    const users = await this.studentLecturesRepository
-      .createQueryBuilder('student_lecture')
-      .innerJoin('student_lecture.user', 'apply_student')
-      .innerJoin('student_lecture.lecture', 'apply_lecture')
-      .where('apply_lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
-      })
-      .andWhere('student_lecture.status = :status', {
-        status: CONST_LECTURE_STATUS.ACCEPT,
-      })
-      .getCount();
-    return {
-      id: lecture.id,
-      title: lecture.title,
-      description: lecture.description,
-      thumbnail: lecture.thumbnail,
-      images: lecture.images,
-      nickname: lecture.nickname,
-      type: lecture.type,
-      status: null,
-      expired: lecture.expired,
-      videos,
-      tags,
       users,
     };
   }
@@ -502,18 +454,14 @@ export class LecturesService {
       .select(['video.id AS id', 'video.url AS url', 'video.title AS title'])
       .orderBy('video.id', 'ASC')
       .getRawMany();
-    const rawTags = await this.lectureTagsRepository
+    const tags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
       .innerJoin('lecture_tag.tag', 'tag')
       .where('lecture.id = :lectureId', { lectureId: lecture.id })
-      .select(['tag.name AS name'])
+      .select(['tag.id AS id', 'tag.name AS name'])
       .orderBy('tag.name', 'DESC')
       .getRawMany();
-    const tags = [];
-    for (const tag of rawTags) {
-      tags.push(tag.name);
-    }
     const users = await this.studentLecturesRepository
       .createQueryBuilder('student_lecture')
       .innerJoin('student_lecture.user', 'apply_student')
@@ -565,18 +513,14 @@ export class LecturesService {
     const responseApprovedLectures = [];
     await lectureOnStatuses.reduce(async (prevPromise, lecture) => {
       return prevPromise.then(async () => {
-        const rawTags = await this.lectureTagsRepository
+        const tags = await this.lectureTagsRepository
           .createQueryBuilder('lecture_tag')
           .innerJoin('lecture_tag.lecture', 'lecture')
           .innerJoin('lecture_tag.tag', 'tag')
           .where('lecture.id = :lectureId', { lectureId: lecture.id })
-          .select(['tag.name AS name'])
+          .select(['tag.id AS id', 'tag.name AS name'])
           .orderBy('tag.name', 'DESC')
           .getRawMany();
-        const tags = [];
-        for (const tag of rawTags) {
-          tags.push(tag.name);
-        }
         const reviews = await this.lectureReviewsRepository
           .createQueryBuilder('lecture_review')
           .innerJoin('lecture_review.lecture', 'review_lecture')
@@ -799,7 +743,7 @@ export class LecturesService {
       .innerJoin('lecture_tag.tag', 'tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
       .where('lecture.id = :id', { id: +param.lectureId })
-      .select(['tag.name AS name'])
+      .select(['tag.id AS id', 'tag.name AS name'])
       .orderBy('tag.name', 'DESC')
       .getRawMany();
   }

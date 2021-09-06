@@ -57,6 +57,15 @@ export class LecturesController {
     );
   }
 
+  @Delete('/admin/:lectureId')
+  @UseGuards(JwtAuthGuard)
+  async deleteLecture(
+    @Param() param: { lectureId: string },
+    @Req() req: Request,
+  ) {
+    return await this.lecturesService.deleteLecture(param, req);
+  }
+
   @Get('/all')
   async readAllLectures() {
     return await this.lecturesService.readAllLectures();
@@ -74,11 +83,6 @@ export class LecturesController {
     @Param() param: { lectureId: string },
   ) {
     return await this.lecturesService.readLectureById(req, param);
-  }
-
-  @Get('/guest/video/:lectureId')
-  async readLectureVideoByIdGuest(@Param() param: { lectureId: string }) {
-    return await this.lecturesService.readLectureVideoByIdGuest(param);
   }
 
   @Get('/video/:lectureId')

@@ -10,7 +10,11 @@ export class Video extends Common {
     example: '1',
     description: '강의 ID',
   })
-  @ManyToOne(() => Lecture, (lecture) => lecture.videos, { primary: true })
+  @ManyToOne(() => Lecture, (lecture) => lecture.videos, {
+    primary: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   lecture: Lecture;
 
