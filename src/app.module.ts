@@ -26,11 +26,18 @@ import { ResourcesModule } from './resources/resources.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DATABASE_HOST,
-      port: +process.env.DATABASE_PORT,
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_DATABASE,
+      ...(process.env.NODE_ENV === 'production'
+        ? {
+            url: process.env.DATABASE_URL,
+            extra: { ssl: { rejectUnauthorized: false } },
+          }
+        : {
+            host: process.env.DATABASE_HOST,
+            port: +process.env.DATABASE_PORT,
+            username: process.env.DATABASE_USERNAME,
+            password: process.env.DATABASE_PASSWORD,
+            database: process.env.DATABASE_DATABASE,
+          }),
       entities: [
         User,
         Lecture,
