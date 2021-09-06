@@ -4,7 +4,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule, {
+    cors: { origin: process.env.FRONT_URL, credentials: true },
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Mapo Learn')
