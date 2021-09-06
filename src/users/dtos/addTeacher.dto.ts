@@ -1,23 +1,7 @@
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { SignUpDto } from './signUp.dto';
 
-export class AddTeacherDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  password: string;
-
-  @IsString()
-  @Length(2, 13)
-  @IsNotEmpty()
-  nickname: string;
-
-  @IsString()
-  @IsNotEmpty()
-  phone: string;
-
+export class AddTeacherDto extends SignUpDto {
   @IsString()
   @IsNotEmpty()
   introduce: string;

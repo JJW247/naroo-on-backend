@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { CONST_ROLE_TYPE, ROLE_TYPE, User } from './entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpDto } from './dtos/signup.dto';
+import { SignUpDto } from './dtos/signUp.dto';
 import { SignInDto } from './dtos/signIn.dto';
 import { AddTeacherDto } from './dtos/addTeacher.dto';
 import { Request } from 'express';
