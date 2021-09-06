@@ -48,6 +48,9 @@ export class LecturesController {
       expired: Date | null;
       title: string | null;
       description: string | null;
+      teacherId: string | null;
+      images: string[] | null;
+      videos: { url: string; title: string }[] | null;
     },
   ) {
     return await this.lecturesService.updateLectureInfo(

@@ -104,6 +104,9 @@ export class LecturesService {
       expired: Date | null;
       title: string | null;
       description: string | null;
+      teacherId: string | null;
+      images: string[] | null;
+      videos: { url: string; title: string }[] | null;
     },
   ) {
     const user = await this.usersRepository.findOne({
@@ -138,6 +141,12 @@ export class LecturesService {
     existLecture.description = updateLectureInfoDto.description
       ? updateLectureInfoDto.description
       : existLecture.description;
+    if (updateLectureInfoDto.teacherId) {
+      const existTeacher = await this.usersRepository.findOne(
+        +updateLectureInfoDto.teacherId,
+      );
+      existLecture.teacher = existTeacher;
+    }
     // 강사, 이미지 array, 영상 array
     return await this.lecturesRepository.save(existLecture);
   }
