@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, Repository } from 'typeorm';
+import { Brackets, getManager, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Lecture, LECTURE_TYPE } from './entities/lecture.entity';
 import { LectureTag } from './entities/lectureTag.entity';
@@ -593,10 +593,32 @@ export class LecturesService {
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
-    return await this.studentLecturesRepository
+
+    const allStudents = await this.usersRepository
+      .createQueryBuilder('user')
+      .select('user.id AS id')
+      .orderBy('user.id', 'DESC')
+      .getRawMany();
+
+    const allLectures = await this.lecturesRepository
+      .createQueryBuilder('lecture')
+      .innerJoin('lecture.teacher', 'teacher')
+      .select([
+        'lecture.id AS id',
+        'lecture.title AS title',
+        'lecture.thumbnail AS thumbnail',
+        'teacher.id AS teacher_id',
+        'teacher.nickname AS teacher_nickname',
+        'lecture.type AS type',
+        'lecture.expiredAt AS expired',
+      ])
+      .orderBy('lecture.id', 'DESC')
+      .getRawMany();
+
+    const allLectureStatuses = await this.studentLecturesRepository
       .createQueryBuilder('student_lecture')
-      .innerJoin('student_lecture.user', 'apply_student')
-      .innerJoin('student_lecture.lecture', 'apply_lecture')
+      .leftJoin('student_lecture.user', 'apply_student')
+      .leftJoin('student_lecture.lecture', 'apply_lecture')
       .innerJoin('apply_lecture.teacher', 'lecture_teacher')
       .select([
         'apply_student.id AS student_id',
@@ -611,6 +633,50 @@ export class LecturesService {
       ])
       .orderBy('apply_lecture.title', 'DESC')
       .getRawMany();
+
+    const filteredStatuses: {
+      student_id: string;
+      lecture_id: string;
+      title: string;
+      thumbnail: string;
+      teacher_id: string;
+      teacher_nickname: string;
+      type: string;
+      status: string | null;
+      expired: string | null;
+    }[] = [];
+    for (const student of allStudents) {
+      if (student) {
+        for (const lecture of allLectures) {
+          if (lecture) {
+            filteredStatuses.push({
+              student_id: student.id,
+              lecture_id: lecture.id,
+              title: lecture.title,
+              thumbnail: lecture.thumbnail,
+              teacher_id: lecture.teacher_id,
+              teacher_nickname: lecture.teacher_nickname,
+              status: null,
+              type: lecture.type,
+              expired: lecture.expired,
+            });
+          }
+        }
+      }
+    }
+    for (const statusNullResult of filteredStatuses) {
+      if (allLectureStatuses) {
+        for (const allLectureStatus of allLectureStatuses) {
+          if (
+            allLectureStatus.student_id === statusNullResult.student_id &&
+            allLectureStatus.lecture_id === statusNullResult.lecture_id
+          ) {
+            statusNullResult.status = allLectureStatus.status;
+          }
+        }
+      }
+    }
+    return filteredStatuses;
   }
 
   async registerLecture(param: { lectureId: string }, req: Request) {
