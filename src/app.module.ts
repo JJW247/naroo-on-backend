@@ -11,13 +11,13 @@ import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { StudentLecture } from './lectures/entities/studentLecture.entity';
 import { LectureTag } from './lectures/entities/lectureTag.entity';
-import { Notice } from './lectures/entities/notice.entity';
 import { Question } from './lectures/entities/question.entity';
 import { Tag } from './lectures/entities/tag.entity';
 import { Video } from './lectures/entities/video.entity';
 import { LectureReview } from './lectures/entities/lectureReview.entity';
 import { Resource } from './resources/entities/resource.entity';
 import { ResourcesModule } from './resources/resources.module';
+import { LectureNotice } from './lectures/entities/lectureNotice.entity';
 
 @Module({
   imports: [
@@ -42,7 +42,7 @@ import { ResourcesModule } from './resources/resources.module';
         User,
         Lecture,
         LectureTag,
-        Notice,
+        LectureNotice,
         Question,
         StudentLecture,
         Tag,

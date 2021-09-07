@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Common } from 'src/common/entities/common.entity';
 import { Lecture } from 'src/lectures/entities/lecture.entity';
+import { LectureNotice } from 'src/lectures/entities/lectureNotice.entity';
 import { LectureReview } from 'src/lectures/entities/lectureReview.entity';
 import { Question } from 'src/lectures/entities/question.entity';
 import { StudentLecture } from 'src/lectures/entities/studentLecture.entity';
@@ -89,4 +90,7 @@ export class User extends Common {
 
   @OneToMany(() => LectureReview, (lectureReview) => lectureReview.student)
   lectureReviews: LectureReview[];
+
+  @OneToMany(() => LectureNotice, (lectureNotice) => lectureNotice.creator)
+  lectureNotices: LectureNotice[];
 }

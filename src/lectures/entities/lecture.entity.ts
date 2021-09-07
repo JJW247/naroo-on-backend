@@ -10,9 +10,9 @@ import {
 import { Common } from 'src/common/entities/common.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { LectureNotice } from './lectureNotice.entity';
 import { LectureReview } from './lectureReview.entity';
 import { LectureTag } from './lectureTag.entity';
-import { Notice } from './notice.entity';
 import { Question } from './question.entity';
 import { StudentLecture } from './studentLecture.entity';
 import { Video } from './video.entity';
@@ -99,12 +99,12 @@ export class Lecture extends Common {
   @OneToMany(() => Question, (question) => question.lecture)
   questions: Question[];
 
-  @OneToMany(() => Notice, (notice) => notice.lecture)
-  notices: Notice[];
-
   @OneToMany(() => LectureTag, (lectureTag) => lectureTag.lecture)
   lectureTags: LectureTag[];
 
   @OneToMany(() => LectureReview, (lectureReview) => lectureReview.lecture)
   lectureReviews: LectureReview[];
+
+  @OneToMany(() => LectureNotice, (lectureNotice) => lectureNotice.lecture)
+  lectureNotices: LectureNotice[];
 }

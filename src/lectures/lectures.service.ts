@@ -4,7 +4,6 @@ import { Brackets, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Lecture, LECTURE_TYPE } from './entities/lecture.entity';
 import { LectureTag } from './entities/lectureTag.entity';
-import { Notice } from './entities/notice.entity';
 import { Question } from './entities/question.entity';
 import {
   CONST_LECTURE_STATUS,
@@ -20,6 +19,7 @@ import { ResponseCreateLectureDto } from './dtos/response/responseCreateLecture.
 import { LectureReview, RATING_TYPE } from './entities/lectureReview.entity';
 
 import _ = require('lodash');
+import { LectureNotice } from './entities/lectureNotice.entity';
 
 function getAverageRating(filteredReviews: any[]) {
   _.each(filteredReviews, (review) => _.update(review, 'rating', _.parseInt));
@@ -41,8 +41,8 @@ export class LecturesService {
     private readonly lecturesRepository: Repository<Lecture>,
     @InjectRepository(LectureTag)
     private readonly lectureTagsRepository: Repository<LectureTag>,
-    @InjectRepository(Notice)
-    private readonly noticesRepository: Repository<Notice>,
+    @InjectRepository(LectureNotice)
+    private readonly lectureNoticesRepository: Repository<LectureNotice>,
     @InjectRepository(Question)
     private readonly questionsRepository: Repository<Question>,
     @InjectRepository(StudentLecture)
@@ -182,7 +182,8 @@ export class LecturesService {
         'lecture.title AS title',
         'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
-        'teacher.nickname AS nickname',
+        'teacher.id AS teacher_id',
+        'teacher.nickname AS teacher_nickname',
         'lecture.type AS type',
         'lecture.expiredAt AS expired',
       ])
@@ -222,7 +223,8 @@ export class LecturesService {
           title: lecture.title,
           description: lecture.description,
           thumbnail: lecture.thumbnail,
-          nickname: lecture.nickname,
+          teacher_id: lecture.teacher_id,
+          teacher_nickname: lecture.teacher_nickname,
           type: lecture.type,
           expired: lecture.expired,
           tags,
@@ -245,7 +247,8 @@ export class LecturesService {
         'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
         'lecture.images AS images',
-        'teacher.nickname AS nickname',
+        'teacher.id AS teacher_id',
+        'teacher.nickname AS teacher_nickname',
         'lecture.type AS type',
         'lecture.expiredAt AS expired',
       ])
@@ -273,19 +276,22 @@ export class LecturesService {
       .select(['video.id AS id'])
       .orderBy('video.id', 'ASC')
       .getRawMany();
-    const notices = await this.noticesRepository
-      .createQueryBuilder('notice')
-      .innerJoin('notice.lecture', 'lecture')
+    const notices = await this.lectureNoticesRepository
+      .createQueryBuilder('lecture_notice')
+      .innerJoin('lecture_notice.lecture', 'lecture')
+      .innerJoin('lecture_notice.creator', 'creator')
       .where('lecture.id = :lectureId', {
         lectureId: lecture.id,
       })
       .select([
-        'notice.id AS id',
-        'notice.createdAt AS created_at',
-        'notice.title AS title',
-        'notice.description AS description',
+        'lecture_notice.id AS id',
+        'lecture_notice.createdAt AS created_at',
+        'creator.id AS creator_id',
+        'creator.nickname AS creator_nickname',
+        'lecture_notice.title AS title',
+        'lecture_notice.description AS description',
       ])
-      .orderBy('notice.id', 'DESC')
+      .orderBy('lecture_notice.id', 'DESC')
       .getRawMany();
     const tags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
@@ -314,7 +320,8 @@ export class LecturesService {
       description: lecture.description,
       thumbnail: lecture.thumbnail,
       images: lecture.images,
-      nickname: lecture.nickname,
+      teacher_id: lecture.teacher_id,
+      teacher_nickname: lecture.teacher_nickname,
       type: lecture.type,
       expired: lecture.expired,
       videos,
@@ -364,7 +371,8 @@ export class LecturesService {
         'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
         'lecture.images AS images',
-        'teacher.nickname AS nickname',
+        'teacher.id AS teacher_id',
+        'teacher.nickname AS teacher_nickname',
         'lecture.type AS type',
         'lecture.expiredAt AS expired',
       ])
@@ -376,19 +384,22 @@ export class LecturesService {
       .select(['video.id AS id'])
       .orderBy('video.id', 'ASC')
       .getRawMany();
-    const notices = await this.noticesRepository
-      .createQueryBuilder('notice')
-      .innerJoin('notice.lecture', 'lecture')
+    const notices = await this.lectureNoticesRepository
+      .createQueryBuilder('lecture_notice')
+      .innerJoin('lecture_notice.lecture', 'lecture')
+      .innerJoin('lecture_notice.creator', 'creator')
       .where('lecture.id = :lectureId', {
         lectureId: lecture.id,
       })
       .select([
-        'notice.id AS id',
-        'notice.createdAt AS created_at',
-        'notice.title AS title',
-        'notice.description AS description',
+        'lecture_notice.id AS id',
+        'lecture_notice.createdAt AS created_at',
+        'creator.id AS creator_id',
+        'creator.nickname AS creator_nickname',
+        'lecture_notice.title AS title',
+        'lecture_notice.description AS description',
       ])
-      .orderBy('notice.id', 'DESC')
+      .orderBy('lecture_notice.id', 'DESC')
       .getRawMany();
     const tags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
@@ -406,7 +417,7 @@ export class LecturesService {
       .where('apply_lecture.id = :lectureId', {
         lectureId: +param.lectureId,
       })
-      .where('student_lecture.status = :status', {
+      .andWhere('student_lecture.status = :status', {
         status: CONST_LECTURE_STATUS.ACCEPT,
       })
       .getCount();
@@ -416,7 +427,8 @@ export class LecturesService {
       description: lecture.description,
       thumbnail: lecture.thumbnail,
       images: lecture.images,
-      nickname: lecture.nickname,
+      teacher_id: lecture.teacher_id,
+      teacher_nickname: lecture.teacher_nickname,
       type: lecture.type,
       status,
       expired: lecture.expired,
@@ -451,7 +463,8 @@ export class LecturesService {
         'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
         'lecture.images AS images',
-        'teacher.nickname AS nickname',
+        'teacher.id AS teacher_id',
+        'teacher.nickname AS teacher_nickname',
         'lecture.type AS type',
         'lecture.expiredAt AS expired',
       ])
@@ -488,7 +501,8 @@ export class LecturesService {
       description: lecture.description,
       thumbnail: lecture.thumbnail,
       images: lecture.images,
-      nickname: lecture.nickname,
+      teacher_id: lecture.teacher_id,
+      teacher_nickname: lecture.teacher_nickname,
       type: lecture.type,
       status,
       expired: lecture.expired,
@@ -512,7 +526,8 @@ export class LecturesService {
         'apply_lecture.id AS id',
         'apply_lecture.title AS title',
         'apply_lecture.thumbnail AS thumbnail',
-        'lecture_teacher.nickname AS nickname',
+        'lecture_teacher.id AS teacher_id',
+        'lecture_teacher.nickname AS teacher_nickname',
         'apply_lecture.type AS type',
         'student_lecture.status AS status',
         'apply_lecture.expiredAt AS expired',
@@ -551,7 +566,8 @@ export class LecturesService {
           id: lecture.id,
           title: lecture.title,
           thumbnail: lecture.thumbnail,
-          nickname: lecture.nickname,
+          teacher_id: lecture.teacher_id,
+          teacher_nickname: lecture.teacher_nickname,
           type: lecture.type,
           status: lecture.status,
           expired: lecture.expired,
@@ -587,7 +603,8 @@ export class LecturesService {
         'apply_lecture.id AS lecture_id',
         'apply_lecture.title AS title',
         'apply_lecture.thumbnail AS thumbnail',
-        'lecture_teacher.nickname AS nickname',
+        'lecture_teacher.id AS teacher_id',
+        'lecture_teacher.nickname AS teacher_nickname',
         'apply_lecture.type AS type',
         'student_lecture.status AS status',
         'apply_lecture.expiredAt AS expired',
@@ -697,9 +714,10 @@ export class LecturesService {
       .innerJoin('lecture_review.student', 'review_student')
       .select([
         'lecture_review.createdAt AS created_at',
-        'review_student.id AS id',
-        'review_student.nickname AS nickname',
-        'review_lecture.title AS title',
+        'review_student.id AS student_id',
+        'review_student.nickname AS student_nickname',
+        'review_lecture.id AS lecture_id',
+        'review_lecture.title AS lecture_title',
         'lecture_review.review AS review',
         'lecture_review.rating AS rating',
       ])
@@ -906,7 +924,10 @@ export class LecturesService {
   async createNotice(
     param: { lectureId: string },
     req: Request,
-    requestCreateNoticeDto: { title: string; description: string },
+    requestCreateNoticeDto: {
+      title: string;
+      description: string;
+    },
   ) {
     const user = await this.usersRepository.findOne({
       where: {
@@ -937,24 +958,30 @@ export class LecturesService {
         HttpStatus.FORBIDDEN,
       );
     }
-    return await this.noticesRepository.save({
+    return await this.lectureNoticesRepository.save({
       lecture: { id: +param.lectureId },
+      creator: { id: +req.user },
       title: requestCreateNoticeDto.title,
       description: requestCreateNoticeDto.description,
     });
   }
 
   async readNotices(param: { lectureId: string }) {
-    return await this.noticesRepository
-      .createQueryBuilder('notice')
-      .innerJoin('notice.lecture', 'lecture')
-      .where('lecture.id = :id', { id: +param.lectureId })
+    return await this.lectureNoticesRepository
+      .createQueryBuilder('lecture_notice')
+      .innerJoin('lecture_notice.lecture', 'lecture')
+      .innerJoin('lecture_notice.creator', 'creator')
+      .where('lecture.id = :lectureId', {
+        lectureId: +param.lectureId,
+      })
       .select([
-        'notice.createdAt AS created_at',
-        'notice.title AS title',
-        'notice.description AS description',
+        'lecture_notice.id AS id',
+        'lecture_notice.createdAt AS created_at',
+        'lecture_notice.creator AS creator',
+        'lecture_notice.title AS title',
+        'lecture_notice.description AS description',
       ])
-      .orderBy('notice.createdAt', 'DESC')
+      .orderBy('lecture_notice.createdAt', 'DESC')
       .getRawMany();
   }
 

@@ -4,9 +4,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Lecture } from './entities/lecture.entity';
+import { LectureNotice } from './entities/lectureNotice.entity';
 import { LectureReview } from './entities/lectureReview.entity';
 import { LectureTag } from './entities/lectureTag.entity';
-import { Notice } from './entities/notice.entity';
 import { Question } from './entities/question.entity';
 import { StudentLecture } from './entities/studentLecture.entity';
 import { Tag } from './entities/tag.entity';
@@ -19,7 +19,7 @@ import { LecturesService } from './lectures.service';
     TypeOrmModule.forFeature([
       Lecture,
       LectureTag,
-      Notice,
+      LectureNotice,
       Question,
       StudentLecture,
       Tag,

@@ -222,7 +222,11 @@ export class LecturesController {
   async createNotice(
     @Param() param: { lectureId: string },
     @Req() req: Request,
-    @Body() requestCreateNoticeDto: { title: string; description: string },
+    @Body()
+    requestCreateNoticeDto: {
+      title: string;
+      description: string;
+    },
   ) {
     return await this.lecturesService.createNotice(
       param,
@@ -243,7 +247,7 @@ export class LecturesController {
     @Req() req: Request,
     @Body() requestCreateQuestionDto: { title: string; description: string },
   ) {
-    return await this.lecturesService.createNotice(
+    return await this.lecturesService.createQuestion(
       param,
       req,
       requestCreateQuestionDto,
@@ -257,7 +261,7 @@ export class LecturesController {
     @Req() req: Request,
     @Body() requestCreateAnswerDto: { title: string; description: string },
   ) {
-    return await this.lecturesService.createNotice(
+    return await this.lecturesService.createAnswer(
       param,
       req,
       requestCreateAnswerDto,

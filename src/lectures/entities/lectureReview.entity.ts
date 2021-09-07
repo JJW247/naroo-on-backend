@@ -24,11 +24,13 @@ export type RATING_TYPE =
 
 @Entity()
 export class LectureReview {
-  @ManyToOne(() => Lecture, (lecture) => lecture.questions, { primary: true })
+  @ManyToOne(() => Lecture, (lecture) => lecture.lectureReviews, {
+    primary: true,
+  })
   @JoinColumn()
   lecture: Lecture;
 
-  @ManyToOne(() => User, (user) => user.questions, { primary: true })
+  @ManyToOne(() => User, (user) => user.lectureReviews, { primary: true })
   @JoinColumn()
   student: User;
 
