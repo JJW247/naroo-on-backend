@@ -1,13 +1,28 @@
 ### Create Resource Content
 POST http://localhost:3010/resource
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMzg3NDM2fQ.TWz2R-g-j1IB-ROc-gYajXqsdg0AwyUMoRS-Guq5TYc
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMxMDc0MTYxfQ.onKp43E4x6N_ritENKhdq4dEQuOInnPjcMcLL5YWboU
 content-type: application/json
 
 {
     "type": "notice_carousel",
-    "content_id" : 2,
     "content": "https://cdn.pixabay.com/photo/2021/07/24/20/04/mountains-6490271_960_720.jpg"
 }
+
+### Create Resource Content
+PUT http://localhost:3010/resource
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMxMDc0MTYxfQ.onKp43E4x6N_ritENKhdq4dEQuOInnPjcMcLL5YWboU
+content-type: application/json
+
+{
+    "type": "notice_carousel",
+    "content_id": "",
+    "content": "https://cdn.pixabay.com/photo/2021/07/24/20/04/mountains-6490271_960_720.jpg"
+}
+
+### Read All Resources
+GET http://localhost:3010/resource
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMxMDc0MTYxfQ.onKp43E4x6N_ritENKhdq4dEQuOInnPjcMcLL5YWboU
+
 
 ### Read Resource Content By Type
 ### type : admin_email, header_logo, footer_logo, notice_carousel, org_carousel

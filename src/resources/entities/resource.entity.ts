@@ -8,7 +8,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 const CONST_RESOURCE_TYPE = {
   ADMIN_EMAIL: 'admin_email',
@@ -30,10 +30,8 @@ export class Resource {
   })
   type: RESOURCE_TYPE;
 
-  @IsNumber()
-  @IsNotEmpty()
   @Min(0)
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   content_id: number;
 
   @IsArray()
