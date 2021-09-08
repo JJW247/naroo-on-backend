@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, getManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Lecture, LECTURE_TYPE } from './entities/lecture.entity';
 import { LectureTag } from './entities/lectureTag.entity';
@@ -1100,11 +1100,11 @@ export class LecturesService {
         HttpStatus.FORBIDDEN,
       );
     }
-    // return await this.questionsRepository.save({
-    //   lecture: { id: +param.lectureId },
-    //   answerTitle: requestCreateAnswerDto.title,
-    //   answerDescription: requestCreateAnswerDto.description,
-    // });
+    return await this.questionsRepository.save({
+      lecture: { id: +param.lectureId },
+      answerTitle: requestCreateAnswerDto.title,
+      answerDescription: requestCreateAnswerDto.description,
+    });
   }
 
   async readQnas(param: { lectureId: string }) {
