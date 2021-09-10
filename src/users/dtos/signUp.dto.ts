@@ -17,4 +17,12 @@ export class SignUpDto {
   @IsString()
   @IsNotEmpty()
   phone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  isAgreeEmail: string;
+
+  @IsString()
+  @IsNotEmpty()
+  isAuthorized: string;
 }

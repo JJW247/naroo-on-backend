@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -75,6 +76,14 @@ export class User extends Common {
   @IsOptional()
   @Column('varchar', { default: null })
   introduce: string;
+
+  @IsBoolean()
+  @Column('boolean', { default: false })
+  isAgreeEmail: boolean;
+
+  @IsBoolean()
+  @Column('boolean', { default: false })
+  isAuthorized: boolean;
 
   @OneToMany(() => StudentLecture, (studentLecture) => studentLecture.user)
   studentLectures: StudentLecture[];

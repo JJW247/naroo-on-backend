@@ -43,6 +43,8 @@ export class UsersService {
       nickname: signUpDto.nickname,
       password: hashedPassword,
       phone: signUpDto.phone,
+      isAgreeEmail: signUpDto.isAgreeEmail === 'true' ? true : false,
+      isAuthorized: signUpDto.isAuthorized === 'true' ? true : false,
     });
 
     const token = this.jwtService.sign({ id: user.id });
@@ -82,6 +84,10 @@ export class UsersService {
     const token = this.jwtService.sign({ id: user.id });
 
     return { token };
+  }
+
+  async authorizeUser(req: Request) {
+    return null;
   }
 
   async getMe(req: Request) {
