@@ -8,6 +8,7 @@ import { SignUpDto } from './dtos/signUp.dto';
 import { SignInDto } from './dtos/signIn.dto';
 import { AddTeacherDto } from './dtos/addTeacher.dto';
 import { Request } from 'express';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -15,6 +16,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly authService: AuthService,
   ) {}
 
   async signUp(signUpDto: SignUpDto) {
@@ -38,20 +40,22 @@ export class UsersService {
       );
     }
 
+    const verifyToken: number =
+      Math.floor(Math.random() * (9999999999 - 1111111111 + 1)) + 1111111111;
+
     const user = await this.usersRepository.save({
       email: signUpDto.email,
       nickname: signUpDto.nickname,
       password: hashedPassword,
       phone: signUpDto.phone,
       isAgreeEmail: signUpDto.isAgreeEmail === 'true' ? true : false,
-      isAuthorized: signUpDto.isAuthorized === 'true' ? true : false,
+      isAuthorized: false,
+      verifyToken: verifyToken.toString(),
     });
 
-    const token = this.jwtService.sign({ id: user.id });
+    await this.authService.sendVerifyEmail(user);
 
-    return {
-      token,
-    };
+    return user;
   }
 
   async signIn(signInDto: SignInDto) {
@@ -59,12 +63,20 @@ export class UsersService {
       where: {
         email: signInDto.email,
       },
-      select: ['id', 'password'],
+      select: ['id', 'email', 'password', 'isAuthorized', 'verifyToken'],
     });
 
     if (!user) {
       throw new HttpException(
         '존재하지 않는 유저입니다.',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    if (!user.isAuthorized) {
+      await this.authService.sendVerifyEmail(user);
+      throw new HttpException(
+        '이메일 인증 메일을 재전송하였습니다. 이메일 인증을 완료해주세요!',
         HttpStatus.UNAUTHORIZED,
       );
     }

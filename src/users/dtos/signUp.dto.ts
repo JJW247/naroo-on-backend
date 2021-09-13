@@ -21,8 +21,4 @@ export class SignUpDto {
   @IsString()
   @IsNotEmpty()
   isAgreeEmail: string;
-
-  @IsString()
-  @IsNotEmpty()
-  isAuthorized: string;
 }
