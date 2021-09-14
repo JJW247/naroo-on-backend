@@ -98,10 +98,6 @@ export class UsersService {
     return { token };
   }
 
-  async authorizeUser(req: Request) {
-    return null;
-  }
-
   async getMe(req: Request) {
     const user = await this.usersRepository.findOne({
       where: {

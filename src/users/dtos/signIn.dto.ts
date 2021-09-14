@@ -1,11 +1,9 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class SignInDto {
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail({}, { message: '이메일 주소를 입력해주세요!' })
   email: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: '비밀번호를 입력해주세요!' })
   password: string;
 }
