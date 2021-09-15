@@ -87,7 +87,7 @@ export class User extends Common {
   isAuthorized: boolean;
 
   @IsString()
-  @Column('varchar', { default: null })
+  @Column('varchar', { default: null, unique: true })
   verifyToken: string;
 
   @OneToMany(() => StudentLecture, (studentLecture) => studentLecture.user)
