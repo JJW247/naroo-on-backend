@@ -12,10 +12,10 @@ import {
 } from './entities/studentLecture.entity';
 import { Tag } from './entities/tag.entity';
 import { Video } from './entities/video.entity';
-import { RequestCreateLectureDto } from './dtos/request/requestCreateLecture.dto';
+import { RequestCreateLectureDto } from './dto/request/requestCreateLecture.dto';
 import { CONST_ROLE_TYPE, User } from 'src/users/entities/user.entity';
 import { Request } from 'express';
-import { ResponseCreateLectureDto } from './dtos/response/responseCreateLecture.dto';
+import { ResponseCreateLectureDto } from './dto/response/responseCreateLecture.dto';
 import { LectureReview, RATING_TYPE } from './entities/lectureReview.entity';
 
 import _ = require('lodash');

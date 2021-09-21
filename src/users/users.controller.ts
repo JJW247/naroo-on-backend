@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { SignUpDto } from './dtos/signUp.dto';
-import { SignInDto } from './dtos/signIn.dto';
+import { SignUpDto } from './dto/signUp.dto';
+import { SignInDto } from './dto/signIn.dto';
 import { UsersService } from './users.service';
 import { Request } from 'express';
-import { AddTeacherDto } from './dtos/addTeacher.dto';
+import { AddTeacherDto } from './dto/addTeacher.dto';
 import { ROLE_TYPE } from './entities/user.entity';
 
 @Controller('auth')

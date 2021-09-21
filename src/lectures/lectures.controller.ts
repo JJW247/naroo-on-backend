@@ -11,8 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { RequestCreateLectureDto } from './dtos/request/requestCreateLecture.dto';
-import { ResponseCreateLectureDto } from './dtos/response/responseCreateLecture.dto';
+import { RequestCreateLectureDto } from './dto/request/requestCreateLecture.dto';
+import { ResponseCreateLectureDto } from './dto/response/responseCreateLecture.dto';
 import { LecturesService } from './lectures.service';
 import { Request } from 'express';
 import { RATING_TYPE } from './entities/lectureReview.entity';
