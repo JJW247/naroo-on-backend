@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Lecture } from 'src/lectures/entities/lecture.entity';
+import { Lecture } from '../../lectures/entity/lecture.entity';
 import {
   CreateDateColumn,
   DeleteDateColumn,

@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  buildMessage,
   IsBoolean,
   IsEmail,
   IsEnum,
@@ -9,12 +8,12 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { Common } from 'src/common/entities/common.entity';
-import { Lecture } from 'src/lectures/entities/lecture.entity';
-import { LectureNotice } from 'src/lectures/entities/lectureNotice.entity';
-import { LectureReview } from 'src/lectures/entities/lectureReview.entity';
-import { Question } from 'src/lectures/entities/question.entity';
-import { StudentLecture } from 'src/lectures/entities/studentLecture.entity';
+import { Common } from '../../common/entity/common.entity';
+import { Lecture } from '../../lectures/entity/lecture.entity';
+import { LectureNotice } from '../../lectures/entity/lectureNotice.entity';
+import { LectureReview } from '../../lectures/entity/lectureReview.entity';
+import { Question } from '../../lectures/entity/question.entity';
+import { StudentLecture } from '../../lectures/entity/studentLecture.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
 export const CONST_ROLE_TYPE = {

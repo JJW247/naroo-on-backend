@@ -1,20 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { CONST_ROLE_TYPE, ROLE_TYPE, User } from './entities/user.entity';
+import { ROLE_TYPE } from './entity/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dto/signUp.dto';
 import { SignInDto } from './dto/signIn.dto';
 import { AddTeacherDto } from './dto/addTeacher.dto';
 import { Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
+import { UsersRepository } from './repository/users.repository';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
+    @InjectRepository(UsersRepository)
+    private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
   ) {}
@@ -98,91 +98,23 @@ export class UsersService {
     return { token };
   }
 
-  async getMe(req: Request) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: +req.user,
-      },
-      select: ['id', 'role', 'nickname'],
-    });
-    return user
-      ? { userId: user.id, role: user.role, nickname: user.nickname }
-      : { userId: null, role: null, nickname: null };
+  getMe(req: Request) {
+    return this.usersRepository.getMe(req);
   }
 
-  async addTeacher(req: Request, addTeacherDto: AddTeacherDto) {
-    const hashedPassword = await bcrypt.hash(addTeacherDto.password, 10);
-
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: +req.user,
-      },
-      select: ['role'],
-    });
-
-    if (user.role === CONST_ROLE_TYPE.ADMIN) {
-      return await this.usersRepository.save({
-        email: addTeacherDto.email,
-        nickname: addTeacherDto.nickname,
-        password: hashedPassword,
-        phone: addTeacherDto.phone,
-        role: CONST_ROLE_TYPE.TEACHER,
-        introduce: addTeacherDto.introduce,
-      });
-    } else {
-      return null;
-    }
+  addTeacher(req: Request, addTeacherDto: AddTeacherDto) {
+    return this.usersRepository.addTeacher(req, addTeacherDto);
   }
 
-  async findAllTeachers(req: Request) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: +req.user,
-      },
-      select: ['role'],
-    });
-
-    if (user.role === CONST_ROLE_TYPE.ADMIN) {
-      const teachers = await this.usersRepository.find({
-        where: {
-          role: CONST_ROLE_TYPE.TEACHER,
-        },
-        select: ['id', 'email', 'nickname', 'phone', 'introduce'],
-      });
-      if (teachers.length === 0) {
-        return null;
-      }
-      return teachers;
-    } else {
-      return null;
-    }
+  findAllTeachers(req: Request) {
+    return this.usersRepository.findAllTeachers(req);
   }
 
-  async findAllStudents(req: Request) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: +req.user,
-      },
-      select: ['role'],
-    });
-
-    if (user.role === CONST_ROLE_TYPE.ADMIN) {
-      const students = await this.usersRepository.find({
-        where: {
-          role: CONST_ROLE_TYPE.STUDENT,
-        },
-        select: ['id', 'email', 'nickname', 'phone'],
-      });
-      if (students.length === 0) {
-        return null;
-      }
-      return students;
-    } else {
-      return null;
-    }
+  findAllStudents(req: Request) {
+    return this.usersRepository.findAllStudents(req);
   }
 
-  async updateUserInfo(
+  updateUserInfo(
     param: { userId: string },
     req: Request,
     updateUserInfoDto: {
@@ -194,63 +126,10 @@ export class UsersService {
       introduce: string | null;
     },
   ) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: +req.user,
-      },
-      select: ['role'],
-    });
-    if (
-      typeof user.role === typeof CONST_ROLE_TYPE &&
-      user.role !== CONST_ROLE_TYPE.ADMIN
-    ) {
-      throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
-    }
-    const existUser = await this.usersRepository.findOne({
-      where: {
-        id: +param.userId,
-      },
-    });
-    existUser.email = updateUserInfoDto.email
-      ? updateUserInfoDto.email
-      : existUser.email;
-    existUser.nickname = updateUserInfoDto.nickname
-      ? updateUserInfoDto.nickname
-      : existUser.nickname;
-    existUser.password = updateUserInfoDto.password
-      ? await bcrypt.hash(updateUserInfoDto.password, 10)
-      : existUser.password;
-    existUser.phone = updateUserInfoDto.phone
-      ? updateUserInfoDto.phone
-      : existUser.phone;
-    existUser.role = updateUserInfoDto.role
-      ? updateUserInfoDto.role
-      : existUser.role;
-    existUser.introduce = updateUserInfoDto.introduce
-      ? updateUserInfoDto.introduce
-      : existUser.introduce;
-    return await this.usersRepository.save(existUser);
+    return this.usersRepository.updateUserInfo(param, req, updateUserInfoDto);
   }
 
-  async deleteUser(param: { userId: string }, req: Request) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: +req.user,
-      },
-      select: ['role'],
-    });
-    if (
-      typeof user.role === typeof CONST_ROLE_TYPE &&
-      user.role !== CONST_ROLE_TYPE.ADMIN
-    ) {
-      throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
-    }
-    const existUser = await this.usersRepository.findOne({
-      where: {
-        id: +param.userId,
-      },
-    });
-    const result = await this.usersRepository.delete({ id: existUser.id });
-    return result.affected === 1 ? { ok: true } : { ok: false };
+  deleteUser(param: { userId: string }, req: Request) {
+    return this.usersRepository.deleteUser(param, req);
   }
 }

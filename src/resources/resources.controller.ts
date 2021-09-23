@@ -10,10 +10,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ResourcesService } from './resources.service';
 import { Request } from 'express';
-import { RESOURCE_TYPE } from './entities/resource.entity';
+import { RESOURCE_TYPE } from './entity/resource.entity';
 
 @Controller('resource')
 export class ResourcesController {

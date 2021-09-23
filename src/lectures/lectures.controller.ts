@@ -10,14 +10,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { RequestCreateLectureDto } from './dto/request/requestCreateLecture.dto';
 import { ResponseCreateLectureDto } from './dto/response/responseCreateLecture.dto';
 import { LecturesService } from './lectures.service';
 import { Request } from 'express';
-import { RATING_TYPE } from './entities/lectureReview.entity';
-import { LECTURE_STATUS } from './entities/studentLecture.entity';
-import { LECTURE_TYPE } from './entities/lecture.entity';
+import { RATING_TYPE } from './entity/lectureReview.entity';
+import { LECTURE_STATUS } from './entity/studentLecture.entity';
+import { LECTURE_TYPE } from './entity/lecture.entity';
 
 @Controller('lecture')
 export class LecturesController {

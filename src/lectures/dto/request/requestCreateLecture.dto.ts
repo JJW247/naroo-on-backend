@@ -8,10 +8,7 @@ import {
   IsString,
   IsUrl,
 } from 'class-validator';
-import {
-  CONST_LECTURE_TYPE,
-  LECTURE_TYPE,
-} from '../../entities/lecture.entity';
+import { CONST_LECTURE_TYPE, LECTURE_TYPE } from '../../entity/lecture.entity';
 
 export class RequestCreateLectureDto {
   @IsString()

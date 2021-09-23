@@ -2,24 +2,24 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { Lecture, LECTURE_TYPE } from './entities/lecture.entity';
-import { LectureTag } from './entities/lectureTag.entity';
-import { Question } from './entities/question.entity';
+import { Lecture, LECTURE_TYPE } from './entity/lecture.entity';
+import { LectureTag } from './entity/lectureTag.entity';
+import { Question } from './entity/question.entity';
 import {
   CONST_LECTURE_STATUS,
   LECTURE_STATUS,
   StudentLecture,
-} from './entities/studentLecture.entity';
-import { Tag } from './entities/tag.entity';
-import { Video } from './entities/video.entity';
+} from './entity/studentLecture.entity';
+import { Tag } from './entity/tag.entity';
+import { Video } from './entity/video.entity';
 import { RequestCreateLectureDto } from './dto/request/requestCreateLecture.dto';
-import { CONST_ROLE_TYPE, User } from 'src/users/entities/user.entity';
+import { CONST_ROLE_TYPE, User } from '../users/entity/user.entity';
 import { Request } from 'express';
 import { ResponseCreateLectureDto } from './dto/response/responseCreateLecture.dto';
-import { LectureReview, RATING_TYPE } from './entities/lectureReview.entity';
+import { LectureReview, RATING_TYPE } from './entity/lectureReview.entity';
 
 import _ = require('lodash');
-import { LectureNotice } from './entities/lectureNotice.entity';
+import { LectureNotice } from './entity/lectureNotice.entity';
 
 function getAverageRating(filteredReviews: any[]) {
   _.each(filteredReviews, (review) => _.update(review, 'rating', _.parseInt));

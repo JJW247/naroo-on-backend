@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { Common } from 'src/common/entities/common.entity';
-import { Lecture } from 'src/lectures/entities/lecture.entity';
-import { User } from 'src/users/entities/user.entity';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { Common } from '../../common/entity/common.entity';
+import { Lecture } from '../../lectures/entity/lecture.entity';
+import { User } from '../../users/entity/user.entity';
 import {
   Column,
   CreateDateColumn,

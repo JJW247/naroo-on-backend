@@ -7,8 +7,8 @@ import {
   IsString,
   IsUrl,
 } from 'class-validator';
-import { Common } from 'src/common/entities/common.entity';
-import { User } from 'src/users/entities/user.entity';
+import { Common } from '../../common/entity/common.entity';
+import { User } from '../../users/entity/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { LectureNotice } from './lectureNotice.entity';
 import { LectureReview } from './lectureReview.entity';

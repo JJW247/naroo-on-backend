@@ -15,7 +15,7 @@ import { SignInDto } from './dto/signIn.dto';
 import { UsersService } from './users.service';
 import { Request } from 'express';
 import { AddTeacherDto } from './dto/addTeacher.dto';
-import { ROLE_TYPE } from './entities/user.entity';
+import { ROLE_TYPE } from './entity/user.entity';
 
 @Controller('auth')
 export class UsersController {
@@ -33,31 +33,31 @@ export class UsersController {
 
   @Get('/me')
   @UseGuards(JwtAuthGuard)
-  async getMe(@Req() req: Request) {
-    return await this.usersService.getMe(req);
+  getMe(@Req() req: Request) {
+    return this.usersService.getMe(req);
   }
 
   @Post('/admin/teacher')
   @UseGuards(JwtAuthGuard)
-  async addTeacher(@Req() req: Request, @Body() addTeacherDto: AddTeacherDto) {
-    return await this.usersService.addTeacher(req, addTeacherDto);
+  addTeacher(@Req() req: Request, @Body() addTeacherDto: AddTeacherDto) {
+    return this.usersService.addTeacher(req, addTeacherDto);
   }
 
   @Get('/admin/teacher')
   @UseGuards(JwtAuthGuard)
-  async findAllTeachers(@Req() req: Request) {
-    return await this.usersService.findAllTeachers(req);
+  findAllTeachers(@Req() req: Request) {
+    return this.usersService.findAllTeachers(req);
   }
 
   @Get('/admin/student')
   @UseGuards(JwtAuthGuard)
-  async findAllStudents(@Req() req: Request) {
-    return await this.usersService.findAllStudents(req);
+  findAllStudents(@Req() req: Request) {
+    return this.usersService.findAllStudents(req);
   }
 
   @Put('/admin/:userId')
   @UseGuards(JwtAuthGuard)
-  async updateUserInfo(
+  updateUserInfo(
     @Param() param: { userId: string },
     @Req() req: Request,
     @Body()
@@ -70,16 +70,12 @@ export class UsersController {
       introduce: string | null;
     },
   ) {
-    return await this.usersService.updateUserInfo(
-      param,
-      req,
-      updateUserInfoDto,
-    );
+    return this.usersService.updateUserInfo(param, req, updateUserInfoDto);
   }
 
   @Delete('/admin/:userId')
   @UseGuards(JwtAuthGuard)
-  async deleteTag(@Param() param: { userId: string }, @Req() req: Request) {
-    return await this.usersService.deleteUser(param, req);
+  deleteUser(@Param() param: { userId: string }, @Req() req: Request) {
+    return this.usersService.deleteUser(param, req);
   }
 }

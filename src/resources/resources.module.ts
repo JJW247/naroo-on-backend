@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { Resource } from './entities/resource.entity';
+import { User } from '../users/entity/user.entity';
+import { Resource } from './entity/resource.entity';
 import { ResourcesController } from './resources.controller';
 import { ResourcesService } from './resources.service';
 

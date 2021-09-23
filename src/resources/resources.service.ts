@@ -2,9 +2,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Resource, RESOURCE_TYPE } from './entities/resource.entity';
+import { Resource, RESOURCE_TYPE } from './entity/resource.entity';
 import { Request } from 'express';
-import { CONST_ROLE_TYPE, User } from 'src/users/entities/user.entity';
+import { CONST_ROLE_TYPE, User } from '../users/entity/user.entity';
 
 @Injectable()
 export class ResourcesService {

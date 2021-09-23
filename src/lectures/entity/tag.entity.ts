@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-import { Common } from 'src/common/entities/common.entity';
+import { Common } from '../../common/entity/common.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { LectureTag } from './lectureTag.entity';
 
