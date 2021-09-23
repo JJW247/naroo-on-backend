@@ -21,15 +21,9 @@ export class ResourcesService {
       content: string;
     },
   ) {
-    const existUser = await this.usersRepository.findOne({
-      where: {
-        user,
-      },
-      select: ['role'],
-    });
     if (
-      typeof existUser.role === typeof CONST_ROLE_TYPE &&
-      existUser.role !== CONST_ROLE_TYPE.ADMIN
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
@@ -47,15 +41,9 @@ export class ResourcesService {
       content: string;
     },
   ) {
-    const existUser = await this.usersRepository.findOne({
-      where: {
-        user,
-      },
-      select: ['role'],
-    });
     if (
-      typeof existUser.role === typeof CONST_ROLE_TYPE &&
-      existUser.role !== CONST_ROLE_TYPE.ADMIN
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
@@ -76,15 +64,9 @@ export class ResourcesService {
   }
 
   async getAllResources(user: User) {
-    const existUser = await this.usersRepository.findOne({
-      where: {
-        user,
-      },
-      select: ['role'],
-    });
     if (
-      typeof existUser.role === typeof CONST_ROLE_TYPE &&
-      existUser.role !== CONST_ROLE_TYPE.ADMIN
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
@@ -111,15 +93,9 @@ export class ResourcesService {
     queryParam: { type: string },
     user: User,
   ) {
-    const existUser = await this.usersRepository.findOne({
-      where: {
-        user,
-      },
-      select: ['role'],
-    });
     if (
-      typeof existUser.role === typeof CONST_ROLE_TYPE &&
-      existUser.role !== CONST_ROLE_TYPE.ADMIN
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }

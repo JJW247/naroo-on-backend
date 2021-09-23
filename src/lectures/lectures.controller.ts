@@ -8,41 +8,35 @@ import {
   Put,
   Query,
   UseGuards,
-  Req,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../users/guards/jwt.guard';
+import { JwtAuthGuard } from '../users/guard/jwt.guard';
 import { RequestCreateLectureDto } from './dto/request/requestCreateLecture.dto';
 import { ResponseCreateLectureDto } from './dto/response/responseCreateLecture.dto';
 import { LecturesService } from './lectures.service';
-import { Request } from 'express';
 import { RATING_TYPE } from './entity/lectureReview.entity';
 import { LECTURE_STATUS } from './entity/studentLecture.entity';
 import { LECTURE_TYPE } from './entity/lecture.entity';
 import { GetUser } from 'src/users/decorator/get-user.decorator';
 import { User } from 'src/users/entity/user.entity';
+import { AdminUserGuard } from 'src/users/guard/admin-user.guard';
+import { StudentUserGuard } from 'src/users/guard/student-user.guard';
 
 @Controller('lecture')
 export class LecturesController {
   constructor(private readonly lecturesService: LecturesService) {}
 
   @Post('/create')
-  @UseGuards(JwtAuthGuard)
-  async createLecture(
-    @GetUser() user: User,
+  @UseGuards(AdminUserGuard)
+  createLecture(
     @Body() requestCreateLectureDto: RequestCreateLectureDto,
   ): Promise<ResponseCreateLectureDto | string> {
-    console.log(requestCreateLectureDto);
-    return await this.lecturesService.createLecture(
-      user,
-      requestCreateLectureDto,
-    );
+    return this.lecturesService.createLecture(requestCreateLectureDto);
   }
 
   @Put('/admin/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async updateLectureInfo(
+  @UseGuards(AdminUserGuard)
+  updateLectureInfo(
     @Param() param: { lectureId: string },
-    @Req() req: Request,
     @Body()
     updateLectureInfoDto: {
       thumbnail: string | null;
@@ -55,223 +49,200 @@ export class LecturesController {
       videos: { url: string; title: string }[] | null;
     },
   ) {
-    return await this.lecturesService.updateLectureInfo(
-      param,
-      req,
-      updateLectureInfoDto,
-    );
+    return this.lecturesService.updateLectureInfo(param, updateLectureInfoDto);
   }
 
   @Delete('/admin/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async deleteLecture(
-    @Param() param: { lectureId: string },
-    @Req() req: Request,
-  ) {
-    return await this.lecturesService.deleteLecture(param, req);
+  @UseGuards(AdminUserGuard)
+  deleteLecture(@Param() param: { lectureId: string }) {
+    return this.lecturesService.deleteLecture(param);
   }
 
   @Get('/all')
-  async readAllLectures() {
-    return await this.lecturesService.readAllLectures();
+  readAllLectures() {
+    return this.lecturesService.readAllLectures();
   }
 
   @Get('/guest/:lectureId')
-  async readLectureByIdGuest(@Param() param: { lectureId: string }) {
-    return await this.lecturesService.readLectureByIdGuest(param);
+  readLectureByIdGuest(@Param() param: { lectureId: string }) {
+    return this.lecturesService.readLectureByIdGuest(param);
   }
 
   @Get('/:lectureId')
   @UseGuards(JwtAuthGuard)
-  async readLectureById(
-    @Req() req: Request,
+  readLectureById(
+    @GetUser() user: User,
     @Param() param: { lectureId: string },
   ) {
-    return await this.lecturesService.readLectureById(req, param);
+    return this.lecturesService.readLectureById(user, param);
   }
 
   @Get('/video/:lectureId')
   @UseGuards(JwtAuthGuard)
-  async readLectureVideoById(
-    @Req() req: Request,
+  readLectureVideoById(
+    @GetUser() user: User,
     @Param() param: { lectureId: string },
   ) {
-    return await this.lecturesService.readLectureVideoById(req, param);
+    return this.lecturesService.readLectureVideoById(user, param);
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async readLectures(@Req() req: Request) {
-    return await this.lecturesService.readLectures(req);
+  readLectures(@GetUser() user: User) {
+    return this.lecturesService.readLectures(user);
   }
 
   @Get('/admin/status')
-  @UseGuards(JwtAuthGuard)
-  async readLectureStatuses(@Req() req: Request) {
-    return await this.lecturesService.readLectureStatuses(req);
+  @UseGuards(AdminUserGuard)
+  readLectureStatuses() {
+    return this.lecturesService.readLectureStatuses();
   }
 
   @Put('/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async registerLecture(
+  @UseGuards(StudentUserGuard)
+  registerLecture(
     @Param() param: { lectureId: string },
-    @Req() req: Request,
+    @GetUser() user: User,
   ) {
-    return await this.lecturesService.registerLecture(param, req);
+    return this.lecturesService.registerLecture(param, user);
   }
 
   @Put('/admin/status/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async updateLectureStatus(
+  @UseGuards(AdminUserGuard)
+  updateLectureStatus(
     @Param() pathParam: { lectureId: string },
-    @Req() req: Request,
     @Query() queryParam: { userId: string },
     @Body() requestUpdateLectureStatus: { status: LECTURE_STATUS },
   ) {
-    return await this.lecturesService.updateLectureStatus(
+    return this.lecturesService.updateLectureStatus(
       pathParam,
-      req,
       queryParam,
       requestUpdateLectureStatus,
     );
   }
 
   @Put('/review/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async registerReview(
+  @UseGuards(StudentUserGuard)
+  registerReview(
     @Param() param: { lectureId: string },
-    @Req() req: Request,
+    @GetUser() user: User,
     @Body() requestRegisterReviewDto: { review: string; rating: RATING_TYPE },
   ) {
-    return await this.lecturesService.registerReview(
+    return this.lecturesService.registerReview(
       param,
-      req,
+      user,
       requestRegisterReviewDto,
     );
   }
 
   @Get('/review/recent')
-  async readRecentReviews() {
-    return await this.lecturesService.readRecentReviews();
+  readRecentReviews() {
+    return this.lecturesService.readRecentReviews();
   }
 
   @Post('/admin/tag/create')
-  @UseGuards(JwtAuthGuard)
-  async createTag(
-    @Req() req: Request,
-    @Body() requestCreateTagDto: { name: string },
-  ) {
-    return await this.lecturesService.createTag(req, requestCreateTagDto);
+  @UseGuards(AdminUserGuard)
+  createTag(@Body() requestCreateTagDto: { name: string }) {
+    return this.lecturesService.createTag(requestCreateTagDto);
   }
 
   @Get('/admin/tag')
-  @UseGuards(JwtAuthGuard)
-  async readAllTags(@Req() req: Request) {
-    return await this.lecturesService.readAllTags(req);
+  @UseGuards(AdminUserGuard)
+  readAllTags() {
+    return this.lecturesService.readAllTags();
   }
 
   @Get('/tag/:lectureId')
-  async readTags(@Param() param: { lectureId: string }) {
-    return await this.lecturesService.readTags(param);
+  readTags(@Param() param: { lectureId: string }) {
+    return this.lecturesService.readTags(param);
   }
 
   @Put('/admin/tag/:tagId')
-  @UseGuards(JwtAuthGuard)
-  async updateTag(
+  @UseGuards(AdminUserGuard)
+  updateTag(
     @Param() param: { tagId: string },
-    @Req() req: Request,
     @Body() updateTagDto: { tagName: string },
   ) {
-    return await this.lecturesService.updateTag(param, req, updateTagDto);
+    return this.lecturesService.updateTag(param, updateTagDto);
   }
 
   @Delete('/admin/tag/:tagId')
-  @UseGuards(JwtAuthGuard)
-  async deleteTag(@Param() param: { tagId: string }, @Req() req: Request) {
-    return await this.lecturesService.deleteTag(param, req);
+  @UseGuards(AdminUserGuard)
+  deleteTag(@Param() param: { tagId: string }) {
+    return this.lecturesService.deleteTag(param);
   }
 
-  @Put('/tag/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async registerTag(
-    @Req() req: Request,
+  @Put('/admin/tag/register/:lectureId')
+  @UseGuards(AdminUserGuard)
+  registerTag(
     @Param() pathParam: { lectureId: string },
     @Body() registerTagDto: { ids: string[] },
   ) {
-    return await this.lecturesService.registerTag(
-      req,
-      pathParam,
-      registerTagDto,
-    );
+    return this.lecturesService.registerTag(pathParam, registerTagDto);
   }
 
-  @Delete('/tag/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async unregisterTag(
-    @Req() req: Request,
+  @Delete('/admin/tag/unregister/:lectureId')
+  @UseGuards(AdminUserGuard)
+  unregisterTag(
     @Param() pathParam: { lectureId: string },
     @Query() unregisterTagDto: { id: string },
   ) {
-    return await this.lecturesService.unregisterTag(
-      req,
-      pathParam,
-      unregisterTagDto,
-    );
+    return this.lecturesService.unregisterTag(pathParam, unregisterTagDto);
   }
 
-  @Put('/notice/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async createNotice(
+  @Put('/admin/notice/:lectureId')
+  @UseGuards(AdminUserGuard)
+  createNotice(
     @Param() param: { lectureId: string },
-    @Req() req: Request,
+    @GetUser() user: User,
     @Body()
     requestCreateNoticeDto: {
       title: string;
       description: string;
     },
   ) {
-    return await this.lecturesService.createNotice(
+    return this.lecturesService.createNotice(
       param,
-      req,
+      user,
       requestCreateNoticeDto,
     );
   }
 
   @Get('/notice/:lectureId')
-  async readNotices(@Param() param: { lectureId: string }) {
-    return await this.lecturesService.readNotices(param);
+  readNotices(@Param() param: { lectureId: string }) {
+    return this.lecturesService.readNotices(param);
   }
 
-  @Post('/lecture/question/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async createQuestion(
+  @Post('/question/:lectureId')
+  @UseGuards(StudentUserGuard)
+  createQuestion(
     @Param() param: { lectureId: string },
-    @Req() req: Request,
+    @GetUser() user: User,
     @Body() requestCreateQuestionDto: { title: string; description: string },
   ) {
-    return await this.lecturesService.createQuestion(
+    return this.lecturesService.createQuestion(
       param,
-      req,
+      user,
       requestCreateQuestionDto,
     );
   }
 
-  @Post('/lecture/answer/:lectureId')
-  @UseGuards(JwtAuthGuard)
-  async createAnswer(
+  @Post('/admin/answer/:lectureId')
+  @UseGuards(AdminUserGuard)
+  createAnswer(
     @Param() param: { lectureId: string },
-    @Req() req: Request,
+    @GetUser() user: User,
     @Body() requestCreateAnswerDto: { title: string; description: string },
   ) {
-    return await this.lecturesService.createAnswer(
+    return this.lecturesService.createAnswer(
       param,
-      req,
+      user,
       requestCreateAnswerDto,
     );
   }
 
   @Get('/lecture/question/:lectureId')
-  async readQnas(@Param() param: { lectureId: string }) {
-    return await this.lecturesService.readQnas(param);
+  readQnas(@Param() param: { lectureId: string }) {
+    return this.lecturesService.readQnas(param);
   }
 }

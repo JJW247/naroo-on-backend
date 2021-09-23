@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../users/guards/jwt.guard';
+import { JwtAuthGuard } from '../users/guard/jwt.guard';
 import { ResourcesService } from './resources.service';
 import { RESOURCE_TYPE } from './entity/resource.entity';
 import { GetUser } from 'src/users/decorator/get-user.decorator';
@@ -21,7 +21,7 @@ export class ResourcesController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async createResourceContent(
+  createResourceContent(
     @GetUser() user: User,
     @Body()
     requestCreateResourceContentDto: {
@@ -29,7 +29,7 @@ export class ResourcesController {
       content: string;
     },
   ) {
-    return await this.resourcesService.createResourceContent(
+    return this.resourcesService.createResourceContent(
       user,
       requestCreateResourceContentDto,
     );
@@ -37,7 +37,7 @@ export class ResourcesController {
 
   @Put()
   @UseGuards(JwtAuthGuard)
-  async updateResourceContent(
+  updateResourceContent(
     @GetUser() user: User,
     @Body()
     requestUpdateResourceContentDto: {
@@ -46,7 +46,7 @@ export class ResourcesController {
       content: string;
     },
   ) {
-    return await this.resourcesService.updateResourceContent(
+    return this.resourcesService.updateResourceContent(
       user,
       requestUpdateResourceContentDto,
     );
@@ -54,26 +54,22 @@ export class ResourcesController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getAllResources(@GetUser() user: User) {
-    return await this.resourcesService.getAllResources(user);
+  getAllResources(@GetUser() user: User) {
+    return this.resourcesService.getAllResources(user);
   }
 
   @Get('/:type')
-  async getResourceContent(@Param() param: { type: string }) {
-    return await this.resourcesService.getResourceContent(param);
+  getResourceContent(@Param() param: { type: string }) {
+    return this.resourcesService.getResourceContent(param);
   }
 
   @Delete('/:content_id')
   @UseGuards(JwtAuthGuard)
-  async deleteResource(
+  deleteResource(
     @Param() pathParam: { content_id: string },
     @Query() queryParam: { type: string },
     @GetUser() user: User,
   ) {
-    return await this.resourcesService.deleteResource(
-      pathParam,
-      queryParam,
-      user,
-    );
+    return this.resourcesService.deleteResource(pathParam, queryParam, user);
   }
 }

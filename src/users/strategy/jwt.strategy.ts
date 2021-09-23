@@ -20,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload) {
+  async validate(payload: JwtPayload): Promise<User> {
     const { id } = payload;
     const user = await this.usersRepository.findOne({ id });
 
@@ -38,6 +38,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       );
     }
 
-    return id;
+    return user;
   }
 }

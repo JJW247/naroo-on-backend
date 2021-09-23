@@ -10,9 +10,8 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../users/guards/jwt.guard';
+import { JwtAuthGuard } from './guard/jwt.guard';
 import { UsersService } from './users.service';
-import { Request } from 'express';
 import { AddTeacherDto } from './dto/addTeacher.dto';
 import { ROLE_TYPE, User } from './entity/user.entity';
 import { SignUpDto } from './dto/signUp.dto';

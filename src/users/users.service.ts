@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ROLE_TYPE, User } from './entity/user.entity';
 import { AddTeacherDto } from './dto/addTeacher.dto';
-import { Request } from 'express';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from './repository/users.repository';
 import { SignUpDto } from './dto/signUp.dto';

@@ -13,11 +13,12 @@ import { Tag } from './entity/tag.entity';
 import { Video } from './entity/video.entity';
 import { LecturesController } from './lectures.controller';
 import { LecturesService } from './lectures.service';
+import { LecturesRepository } from './repository/lectures.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      Lecture,
+      LecturesRepository,
       LectureTag,
       LectureNotice,
       Question,
