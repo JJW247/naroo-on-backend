@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 import { Common } from '../../common/entity/common.entity';
 import { Lecture } from '../../lectures/entity/lecture.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
@@ -22,8 +21,6 @@ export class Video extends Common {
     example: 'http://~~~',
     description: '비메오 동영상 URL',
   })
-  @IsUrl()
-  @IsNotEmpty()
   @Column('varchar')
   url: string;
 
@@ -31,8 +28,6 @@ export class Video extends Common {
     example: '1강 : ~~~',
     description: '강의 설명',
   })
-  @IsString()
-  @IsNotEmpty()
   @Column('varchar')
   title: string;
 }

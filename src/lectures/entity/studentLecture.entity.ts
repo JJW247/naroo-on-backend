@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional } from 'class-validator';
 import { Lecture } from '../../lectures/entity/lecture.entity';
 import { User } from '../../users/entity/user.entity';
 import {
@@ -54,8 +53,6 @@ export class StudentLecture {
     example: 'visible',
     description: '강의 현황',
   })
-  @IsEnum(CONST_LECTURE_STATUS)
-  @IsOptional()
   @Column('enum', {
     enum: CONST_LECTURE_STATUS,
     default: null,

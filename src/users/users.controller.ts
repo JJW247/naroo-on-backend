@@ -6,60 +6,67 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { SignUpDto } from './dto/signUp.dto';
-import { SignInDto } from './dto/signIn.dto';
+import { JwtAuthGuard } from '../users/guards/jwt.guard';
 import { UsersService } from './users.service';
 import { Request } from 'express';
 import { AddTeacherDto } from './dto/addTeacher.dto';
-import { ROLE_TYPE } from './entity/user.entity';
+import { ROLE_TYPE, User } from './entity/user.entity';
+import { SignUpDto } from './dto/signUp.dto';
+import { SignInDto } from './dto/signIn.dto';
+import { GetUser } from './decorator/get-user.decorator';
 
-@Controller('auth')
+@Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('/signup')
-  async signUp(@Body() signUpDto: SignUpDto) {
-    return await this.usersService.signUp(signUpDto);
+  signUp(@Body() signUpDto: SignUpDto) {
+    return this.usersService.signUp(signUpDto);
   }
 
   @Post('/signin')
-  async signIn(@Body() signInDto: SignInDto) {
-    return await this.usersService.signIn(signInDto);
+  signIn(@Body() signInDto: SignInDto) {
+    return this.usersService.signIn(signInDto);
+  }
+
+  @Get('verify')
+  verifyCode(@Query() param: { requestToken: string }) {
+    return this.usersService.verifyCode(param);
   }
 
   @Get('/me')
   @UseGuards(JwtAuthGuard)
-  getMe(@Req() req: Request) {
-    return this.usersService.getMe(req);
+  getMe(@GetUser() user: User) {
+    return this.usersService.getMe(user);
   }
 
   @Post('/admin/teacher')
   @UseGuards(JwtAuthGuard)
-  addTeacher(@Req() req: Request, @Body() addTeacherDto: AddTeacherDto) {
-    return this.usersService.addTeacher(req, addTeacherDto);
+  addTeacher(@GetUser() user: User, @Body() addTeacherDto: AddTeacherDto) {
+    return this.usersService.addTeacher(user, addTeacherDto);
   }
 
   @Get('/admin/teacher')
   @UseGuards(JwtAuthGuard)
-  findAllTeachers(@Req() req: Request) {
-    return this.usersService.findAllTeachers(req);
+  findAllTeachers(@GetUser() user: User) {
+    return this.usersService.findAllTeachers(user);
   }
 
   @Get('/admin/student')
   @UseGuards(JwtAuthGuard)
-  findAllStudents(@Req() req: Request) {
-    return this.usersService.findAllStudents(req);
+  findAllStudents(@GetUser() user: User) {
+    return this.usersService.findAllStudents(user);
   }
 
   @Put('/admin/:userId')
   @UseGuards(JwtAuthGuard)
   updateUserInfo(
     @Param() param: { userId: string },
-    @Req() req: Request,
+    @GetUser() user: User,
     @Body()
     updateUserInfoDto: {
       email: string | null;
@@ -70,12 +77,12 @@ export class UsersController {
       introduce: string | null;
     },
   ) {
-    return this.usersService.updateUserInfo(param, req, updateUserInfoDto);
+    return this.usersService.updateUserInfo(param, user, updateUserInfoDto);
   }
 
   @Delete('/admin/:userId')
   @UseGuards(JwtAuthGuard)
-  deleteUser(@Param() param: { userId: string }, @Req() req: Request) {
-    return this.usersService.deleteUser(param, req);
+  deleteUser(@Param() param: { userId: string }, @GetUser() user: User) {
+    return this.usersService.deleteUser(param, user);
   }
 }

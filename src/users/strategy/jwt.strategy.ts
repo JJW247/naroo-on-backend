@@ -3,35 +3,41 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { User } from '../../users/entity/user.entity';
-import { Repository } from 'typeorm';
+import { User } from '../entity/user.entity';
+import { UsersRepository } from '../repository/users.repository';
+import { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
+    @InjectRepository(UsersRepository)
+    private readonly usersRepository: UsersRepository,
     private readonly configService: ConfigService,
-    @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get<string>('JWT_SECRET'),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
   }
 
-  async validate(payload: any) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: payload.id,
-      },
-    });
+  async validate(payload: JwtPayload) {
+    const { id } = payload;
+    const user = await this.usersRepository.findOne({ id });
+
+    if (!user) {
+      throw new HttpException(
+        '존재하지 않는 유저입니다!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     if (!user.isAuthorized) {
       throw new HttpException(
-        '존재하지 않는 유저입니다!',
+        '인증되지 않은 유저입니다!',
         HttpStatus.UNAUTHORIZED,
       );
     }
 
-    return payload.id;
+    return id;
   }
 }

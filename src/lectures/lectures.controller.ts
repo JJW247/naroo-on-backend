@@ -7,10 +7,10 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UseGuards,
+  Req,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { JwtAuthGuard } from '../users/guards/jwt.guard';
 import { RequestCreateLectureDto } from './dto/request/requestCreateLecture.dto';
 import { ResponseCreateLectureDto } from './dto/response/responseCreateLecture.dto';
 import { LecturesService } from './lectures.service';
@@ -18,6 +18,8 @@ import { Request } from 'express';
 import { RATING_TYPE } from './entity/lectureReview.entity';
 import { LECTURE_STATUS } from './entity/studentLecture.entity';
 import { LECTURE_TYPE } from './entity/lecture.entity';
+import { GetUser } from 'src/users/decorator/get-user.decorator';
+import { User } from 'src/users/entity/user.entity';
 
 @Controller('lecture')
 export class LecturesController {
@@ -26,12 +28,12 @@ export class LecturesController {
   @Post('/create')
   @UseGuards(JwtAuthGuard)
   async createLecture(
-    @Req() req: Request,
+    @GetUser() user: User,
     @Body() requestCreateLectureDto: RequestCreateLectureDto,
   ): Promise<ResponseCreateLectureDto | string> {
     console.log(requestCreateLectureDto);
     return await this.lecturesService.createLecture(
-      req,
+      user,
       requestCreateLectureDto,
     );
   }

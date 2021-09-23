@@ -1,37 +1,35 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Resource, RESOURCE_TYPE } from './entity/resource.entity';
-import { Request } from 'express';
+import { RESOURCE_TYPE } from './entity/resource.entity';
 import { CONST_ROLE_TYPE, User } from '../users/entity/user.entity';
+import { ResourcesRepository } from './repository/resources.repository';
+import { UsersRepository } from 'src/users/repository/users.repository';
 
 @Injectable()
 export class ResourcesService {
   constructor(
-    @InjectRepository(Resource)
-    private readonly resourcesRepository: Repository<Resource>,
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
-    private readonly jwtService: JwtService,
+    @InjectRepository(ResourcesRepository)
+    private readonly resourcesRepository: ResourcesRepository,
+    @InjectRepository(UsersRepository)
+    private readonly usersRepository: UsersRepository,
   ) {}
 
   async createResourceContent(
-    req: Request,
+    user: User,
     requestCreateResourceContentDto: {
       type: RESOURCE_TYPE;
       content: string;
     },
   ) {
-    const user = await this.usersRepository.findOne({
+    const existUser = await this.usersRepository.findOne({
       where: {
-        id: req.user,
+        user,
       },
       select: ['role'],
     });
     if (
-      typeof user.role === typeof CONST_ROLE_TYPE &&
-      user.role !== CONST_ROLE_TYPE.ADMIN
+      typeof existUser.role === typeof CONST_ROLE_TYPE &&
+      existUser.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
@@ -42,22 +40,22 @@ export class ResourcesService {
   }
 
   async updateResourceContent(
-    req: Request,
+    user: User,
     requestUpdateResourceContentDto: {
       type: RESOURCE_TYPE;
       content_id: string;
       content: string;
     },
   ) {
-    const user = await this.usersRepository.findOne({
+    const existUser = await this.usersRepository.findOne({
       where: {
-        id: req.user,
+        user,
       },
       select: ['role'],
     });
     if (
-      typeof user.role === typeof CONST_ROLE_TYPE &&
-      user.role !== CONST_ROLE_TYPE.ADMIN
+      typeof existUser.role === typeof CONST_ROLE_TYPE &&
+      existUser.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
@@ -77,16 +75,16 @@ export class ResourcesService {
     return await this.resourcesRepository.save(resource);
   }
 
-  async getAllResources(req: Request) {
-    const user = await this.usersRepository.findOne({
+  async getAllResources(user: User) {
+    const existUser = await this.usersRepository.findOne({
       where: {
-        id: req.user,
+        user,
       },
       select: ['role'],
     });
     if (
-      typeof user.role === typeof CONST_ROLE_TYPE &&
-      user.role !== CONST_ROLE_TYPE.ADMIN
+      typeof existUser.role === typeof CONST_ROLE_TYPE &&
+      existUser.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
@@ -111,17 +109,17 @@ export class ResourcesService {
   async deleteResource(
     pathParam: { content_id: string },
     queryParam: { type: string },
-    req: Request,
+    user: User,
   ) {
-    const user = await this.usersRepository.findOne({
+    const existUser = await this.usersRepository.findOne({
       where: {
-        id: +req.user,
+        user,
       },
       select: ['role'],
     });
     if (
-      typeof user.role === typeof CONST_ROLE_TYPE &&
-      user.role !== CONST_ROLE_TYPE.ADMIN
+      typeof existUser.role === typeof CONST_ROLE_TYPE &&
+      existUser.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }

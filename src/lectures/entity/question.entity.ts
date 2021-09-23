@@ -1,4 +1,3 @@
-import { IsNotEmpty, IsString } from 'class-validator';
 import { Common } from '../../common/entity/common.entity';
 import { Lecture } from '../../lectures/entity/lecture.entity';
 import { User } from '../../users/entity/user.entity';
@@ -14,13 +13,9 @@ export class Question extends Common {
   @JoinColumn()
   student: User;
 
-  @IsString()
-  @IsNotEmpty()
   @Column('varchar')
   questionTitle: string;
 
-  @IsString()
-  @IsNotEmpty()
   @Column('varchar')
   questionDescription: string;
 
@@ -28,13 +23,9 @@ export class Question extends Common {
   @JoinColumn()
   teacher: User;
 
-  @IsString()
-  @IsNotEmpty()
   @Column('varchar')
   answerTitle: string;
 
-  @IsString()
-  @IsNotEmpty()
   @Column('varchar')
   answerDescription: string;
 }

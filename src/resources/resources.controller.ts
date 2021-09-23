@@ -7,13 +7,13 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { JwtAuthGuard } from '../users/guards/jwt.guard';
 import { ResourcesService } from './resources.service';
-import { Request } from 'express';
 import { RESOURCE_TYPE } from './entity/resource.entity';
+import { GetUser } from 'src/users/decorator/get-user.decorator';
+import { User } from 'src/users/entity/user.entity';
 
 @Controller('resource')
 export class ResourcesController {
@@ -22,7 +22,7 @@ export class ResourcesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   async createResourceContent(
-    @Req() req: Request,
+    @GetUser() user: User,
     @Body()
     requestCreateResourceContentDto: {
       type: RESOURCE_TYPE;
@@ -30,7 +30,7 @@ export class ResourcesController {
     },
   ) {
     return await this.resourcesService.createResourceContent(
-      req,
+      user,
       requestCreateResourceContentDto,
     );
   }
@@ -38,7 +38,7 @@ export class ResourcesController {
   @Put()
   @UseGuards(JwtAuthGuard)
   async updateResourceContent(
-    @Req() req: Request,
+    @GetUser() user: User,
     @Body()
     requestUpdateResourceContentDto: {
       type: RESOURCE_TYPE;
@@ -47,15 +47,15 @@ export class ResourcesController {
     },
   ) {
     return await this.resourcesService.updateResourceContent(
-      req,
+      user,
       requestUpdateResourceContentDto,
     );
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getAllResources(@Req() req: Request) {
-    return await this.resourcesService.getAllResources(req);
+  async getAllResources(@GetUser() user: User) {
+    return await this.resourcesService.getAllResources(user);
   }
 
   @Get('/:type')
@@ -68,12 +68,12 @@ export class ResourcesController {
   async deleteResource(
     @Param() pathParam: { content_id: string },
     @Query() queryParam: { type: string },
-    @Req() req: Request,
+    @GetUser() user: User,
   ) {
     return await this.resourcesService.deleteResource(
       pathParam,
       queryParam,
-      req,
+      user,
     );
   }
 }

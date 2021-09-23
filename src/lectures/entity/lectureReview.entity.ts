@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Lecture } from '../../lectures/entity/lecture.entity';
 import { User } from '../../users/entity/user.entity';
 import {
@@ -55,8 +54,6 @@ export class LectureReview {
     example: 1,
     description: '강의 평점',
   })
-  @IsEnum(CONST_RATING_TYPE)
-  @IsNotEmpty()
   @Column('enum', {
     enum: CONST_RATING_TYPE,
   })
@@ -66,8 +63,6 @@ export class LectureReview {
     example: '최고의 강의입니다.',
     description: '강의 리뷰 내용',
   })
-  @IsString()
-  @IsNotEmpty()
   @Column('varchar')
   review: string;
 }

@@ -1,13 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ArrayMinSize,
-  IsArray,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  Min,
-  ValidateNested,
-} from 'class-validator';
 import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 const CONST_RESOURCE_TYPE = {
@@ -23,20 +14,14 @@ export type RESOURCE_TYPE =
 
 @Entity()
 export class Resource {
-  @IsEnum(CONST_RESOURCE_TYPE)
-  @IsNotEmpty()
   @PrimaryColumn('enum', {
     enum: CONST_RESOURCE_TYPE,
   })
   type: RESOURCE_TYPE;
 
-  @Min(0)
   @PrimaryGeneratedColumn()
   content_id: number;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @ArrayMinSize(1)
   @Column()
   content: string;
 }

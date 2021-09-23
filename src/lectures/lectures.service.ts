@@ -59,18 +59,18 @@ export class LecturesService {
   ) {}
 
   async createLecture(
-    req: Request,
+    user: User,
     requestCreateLectureDto: RequestCreateLectureDto,
   ): Promise<ResponseCreateLectureDto | string> {
-    const user = await this.usersRepository.findOne({
+    const existUser = await this.usersRepository.findOne({
       where: {
-        id: req.user,
+        user,
       },
       select: ['role'],
     });
     if (
-      typeof user.role === typeof CONST_ROLE_TYPE &&
-      user.role !== CONST_ROLE_TYPE.ADMIN
+      typeof existUser.role === typeof CONST_ROLE_TYPE &&
+      existUser.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }

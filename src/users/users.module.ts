@@ -1,25 +1,42 @@
+import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from 'src/auth/auth.module';
+import { JwtStrategy } from 'src/users/strategy/jwt.strategy';
 import { UsersRepository } from './repository/users.repository';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 @Module({
   imports: [
-    AuthModule,
-    TypeOrmModule.forFeature([UsersRepository]),
+    ConfigModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: 3600,
+        },
       }),
     }),
+    MailerModule.forRoot({
+      transport: {
+        service: 'Mailgun',
+        host: process.env.MAILGUN_HOST,
+        port: +process.env.MAILGUN_PORT,
+        auth: {
+          user: process.env.MAILGUN_USER,
+          pass: process.env.MAILGUN_PASS,
+        },
+      },
+    }),
+    TypeOrmModule.forFeature([UsersRepository]),
   ],
+  providers: [UsersService, JwtStrategy],
   controllers: [UsersController],
-  providers: [UsersService],
-  exports: [UsersService],
+  exports: [JwtStrategy, PassportModule],
 })
 export class UsersModule {}

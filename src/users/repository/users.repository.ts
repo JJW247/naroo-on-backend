@@ -2,34 +2,38 @@ import { EntityRepository, Repository } from 'typeorm';
 import { CONST_ROLE_TYPE, ROLE_TYPE, User } from '../entity/user.entity';
 import { Request } from 'express';
 import * as bcrypt from 'bcrypt';
-import { AddTeacherDto } from '../dto/addTeacher.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { AddTeacherDto } from '../dto/addTeacher.dto';
 
 @EntityRepository(User)
 export class UsersRepository extends Repository<User> {
-  async getMe(req: Request) {
-    const user = await this.findOne({
+  async getMe(user: User) {
+    const existUser = await this.findOne({
       where: {
-        id: +req.user,
+        user,
       },
       select: ['id', 'role', 'nickname'],
     });
-    return user
-      ? { userId: user.id, role: user.role, nickname: user.nickname }
+    return existUser
+      ? {
+          userId: existUser.id,
+          role: existUser.role,
+          nickname: existUser.nickname,
+        }
       : { userId: null, role: null, nickname: null };
   }
 
-  async addTeacher(req: Request, addTeacherDto: AddTeacherDto) {
+  async addTeacher(user: User, addTeacherDto: AddTeacherDto) {
     const hashedPassword = await bcrypt.hash(addTeacherDto.password, 10);
 
-    const user = await this.findOne({
+    const existUser = await this.findOne({
       where: {
-        id: +req.user,
+        user,
       },
       select: ['role'],
     });
 
-    if (user.role === CONST_ROLE_TYPE.ADMIN) {
+    if (existUser.role === CONST_ROLE_TYPE.ADMIN) {
       return await this.save({
         email: addTeacherDto.email,
         nickname: addTeacherDto.nickname,
@@ -43,15 +47,15 @@ export class UsersRepository extends Repository<User> {
     }
   }
 
-  async findAllTeachers(req: Request) {
-    const user = await this.findOne({
+  async findAllTeachers(user: User) {
+    const existUser = await this.findOne({
       where: {
-        id: +req.user,
+        user,
       },
       select: ['role'],
     });
 
-    if (user.role === CONST_ROLE_TYPE.ADMIN) {
+    if (existUser.role === CONST_ROLE_TYPE.ADMIN) {
       const teachers = await this.find({
         where: {
           role: CONST_ROLE_TYPE.TEACHER,
@@ -67,15 +71,15 @@ export class UsersRepository extends Repository<User> {
     }
   }
 
-  async findAllStudents(req: Request) {
-    const user = await this.findOne({
+  async findAllStudents(user: User) {
+    const existUser = await this.findOne({
       where: {
-        id: +req.user,
+        user,
       },
       select: ['role'],
     });
 
-    if (user.role === CONST_ROLE_TYPE.ADMIN) {
+    if (existUser.role === CONST_ROLE_TYPE.ADMIN) {
       const students = await this.find({
         where: {
           role: CONST_ROLE_TYPE.STUDENT,
@@ -93,7 +97,7 @@ export class UsersRepository extends Repository<User> {
 
   async updateUserInfo(
     param: { userId: string },
-    req: Request,
+    user: User,
     updateUserInfoDto: {
       email: string | null;
       nickname: string | null;
@@ -103,63 +107,63 @@ export class UsersRepository extends Repository<User> {
       introduce: string | null;
     },
   ) {
-    const user = await this.findOne({
+    const existUser = await this.findOne({
       where: {
-        id: +req.user,
+        user,
       },
       select: ['role'],
     });
     if (
-      typeof user.role === typeof CONST_ROLE_TYPE &&
-      user.role !== CONST_ROLE_TYPE.ADMIN
+      typeof existUser.role === typeof CONST_ROLE_TYPE &&
+      existUser.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
-    const existUser = await this.findOne({
+    const existUpdateUser = await this.findOne({
       where: {
         id: +param.userId,
       },
     });
-    existUser.email = updateUserInfoDto.email
+    existUpdateUser.email = updateUserInfoDto.email
       ? updateUserInfoDto.email
-      : existUser.email;
-    existUser.nickname = updateUserInfoDto.nickname
+      : existUpdateUser.email;
+    existUpdateUser.nickname = updateUserInfoDto.nickname
       ? updateUserInfoDto.nickname
-      : existUser.nickname;
-    existUser.password = updateUserInfoDto.password
+      : existUpdateUser.nickname;
+    existUpdateUser.password = updateUserInfoDto.password
       ? await bcrypt.hash(updateUserInfoDto.password, 10)
-      : existUser.password;
-    existUser.phone = updateUserInfoDto.phone
+      : existUpdateUser.password;
+    existUpdateUser.phone = updateUserInfoDto.phone
       ? updateUserInfoDto.phone
-      : existUser.phone;
-    existUser.role = updateUserInfoDto.role
+      : existUpdateUser.phone;
+    existUpdateUser.role = updateUserInfoDto.role
       ? updateUserInfoDto.role
-      : existUser.role;
-    existUser.introduce = updateUserInfoDto.introduce
+      : existUpdateUser.role;
+    existUpdateUser.introduce = updateUserInfoDto.introduce
       ? updateUserInfoDto.introduce
-      : existUser.introduce;
-    return await this.save(existUser);
+      : existUpdateUser.introduce;
+    return await this.save(existUpdateUser);
   }
 
-  async deleteUser(param: { userId: string }, req: Request) {
-    const user = await this.findOne({
+  async deleteUser(param: { userId: string }, user: User) {
+    const existUser = await this.findOne({
       where: {
-        id: +req.user,
+        user,
       },
       select: ['role'],
     });
     if (
-      typeof user.role === typeof CONST_ROLE_TYPE &&
-      user.role !== CONST_ROLE_TYPE.ADMIN
+      typeof existUser.role === typeof CONST_ROLE_TYPE &&
+      existUser.role !== CONST_ROLE_TYPE.ADMIN
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
-    const existUser = await this.findOne({
+    const existDeleteUser = await this.findOne({
       where: {
         id: +param.userId,
       },
     });
-    const result = await this.delete({ id: existUser.id });
+    const result = await this.delete({ id: existDeleteUser.id });
     return result.affected === 1 ? { ok: true } : { ok: false };
   }
 }

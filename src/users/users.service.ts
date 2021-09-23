@@ -1,22 +1,24 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcrypt';
-import { ROLE_TYPE } from './entity/user.entity';
-import { JwtService } from '@nestjs/jwt';
-import { SignUpDto } from './dto/signUp.dto';
-import { SignInDto } from './dto/signIn.dto';
+import { ROLE_TYPE, User } from './entity/user.entity';
 import { AddTeacherDto } from './dto/addTeacher.dto';
 import { Request } from 'express';
-import { AuthService } from 'src/auth/auth.service';
+import * as bcrypt from 'bcrypt';
 import { UsersRepository } from './repository/users.repository';
+import { SignUpDto } from './dto/signUp.dto';
+import { SignInDto } from './dto/signIn.dto';
+import { JwtService } from '@nestjs/jwt';
+import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UsersRepository)
     private readonly usersRepository: UsersRepository,
+    private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly authService: AuthService,
   ) {}
 
   async signUp(signUpDto: SignUpDto) {
@@ -30,7 +32,7 @@ export class UsersService {
     }
 
     const isUniquePhone = await this.usersRepository.findOne({
-      phone: signUpDto.phone,
+      where: { phone: signUpDto.phone },
     });
 
     if (isUniquePhone !== undefined) {
@@ -53,7 +55,7 @@ export class UsersService {
       verifyToken: verifyToken.toString(),
     });
 
-    await this.authService.sendVerifyEmail(user);
+    await this.sendVerifyEmail(user);
 
     return user;
   }
@@ -74,7 +76,7 @@ export class UsersService {
     }
 
     if (!user.isAuthorized) {
-      await this.authService.sendVerifyEmail(user);
+      await this.sendVerifyEmail(user);
       throw new HttpException(
         '이메일 인증 메일을 재전송하였습니다. 이메일 인증을 완료해주세요!',
         HttpStatus.UNAUTHORIZED,
@@ -98,25 +100,58 @@ export class UsersService {
     return { token };
   }
 
-  getMe(req: Request) {
-    return this.usersRepository.getMe(req);
+  async sendVerifyEmail(user: User) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      from: this.configService.get<string>('MAILGUN_USER'),
+      subject:
+        '마포런 회원이 되신 것을 축하합니다! 링크 접속을 통해 이메일 인증 요청을 완료해주세요!',
+      html: `<a href="${process.env.FRONT_URL}/verify/${user.verifyToken}">이메일 인증하기</a>`,
+    });
   }
 
-  addTeacher(req: Request, addTeacherDto: AddTeacherDto) {
-    return this.usersRepository.addTeacher(req, addTeacherDto);
+  async verifyCode(param: { requestToken: string }) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        verifyToken: param.requestToken,
+      },
+    });
+
+    if (!user)
+      throw new HttpException(
+        '잘못된 인증 요청입니다!',
+        HttpStatus.UNAUTHORIZED,
+      );
+
+    user.verifyToken = null;
+    user.isAuthorized = true;
+
+    await this.usersRepository.save(user);
+
+    const token = this.jwtService.sign({ id: user.id });
+
+    return { token };
   }
 
-  findAllTeachers(req: Request) {
-    return this.usersRepository.findAllTeachers(req);
+  getMe(user: User) {
+    return this.usersRepository.getMe(user);
   }
 
-  findAllStudents(req: Request) {
-    return this.usersRepository.findAllStudents(req);
+  addTeacher(user: User, addTeacherDto: AddTeacherDto) {
+    return this.usersRepository.addTeacher(user, addTeacherDto);
+  }
+
+  findAllTeachers(user: User) {
+    return this.usersRepository.findAllTeachers(user);
+  }
+
+  findAllStudents(user: User) {
+    return this.usersRepository.findAllStudents(user);
   }
 
   updateUserInfo(
     param: { userId: string },
-    req: Request,
+    user: User,
     updateUserInfoDto: {
       email: string | null;
       nickname: string | null;
@@ -126,10 +161,10 @@ export class UsersService {
       introduce: string | null;
     },
   ) {
-    return this.usersRepository.updateUserInfo(param, req, updateUserInfoDto);
+    return this.usersRepository.updateUserInfo(param, user, updateUserInfoDto);
   }
 
-  deleteUser(param: { userId: string }, req: Request) {
-    return this.usersRepository.deleteUser(param, req);
+  deleteUser(param: { userId: string }, user: User) {
+    return this.usersRepository.deleteUser(param, user);
   }
 }
