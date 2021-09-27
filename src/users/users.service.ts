@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ROLE_TYPE, User } from './entity/user.entity';
-import { AddTeacherDto } from './dto/addTeacher.dto';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from './repository/users.repository';
 import { SignUpDto } from './dto/signUp.dto';
@@ -134,14 +133,6 @@ export class UsersService {
 
   getMe(user: User) {
     return this.usersRepository.getMe(user);
-  }
-
-  addTeacher(user: User, addTeacherDto: AddTeacherDto) {
-    return this.usersRepository.addTeacher(user, addTeacherDto);
-  }
-
-  findAllTeachers(user: User) {
-    return this.usersRepository.findAllTeachers(user);
   }
 
   findAllStudents(user: User) {

@@ -7,12 +7,10 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from './guard/jwt.guard';
 import { UsersService } from './users.service';
-import { AddTeacherDto } from './dto/addTeacher.dto';
 import { ROLE_TYPE, User } from './entity/user.entity';
 import { SignUpDto } from './dto/signUp.dto';
 import { SignInDto } from './dto/signIn.dto';
@@ -41,18 +39,6 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   getMe(@GetUser() user: User) {
     return this.usersService.getMe(user);
-  }
-
-  @Post('/admin/teacher')
-  @UseGuards(JwtAuthGuard)
-  addTeacher(@GetUser() user: User, @Body() addTeacherDto: AddTeacherDto) {
-    return this.usersService.addTeacher(user, addTeacherDto);
-  }
-
-  @Get('/admin/teacher')
-  @UseGuards(JwtAuthGuard)
-  findAllTeachers(@GetUser() user: User) {
-    return this.usersService.findAllTeachers(user);
   }
 
   @Get('/admin/student')

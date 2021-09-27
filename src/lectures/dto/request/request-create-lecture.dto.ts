@@ -1,14 +1,11 @@
 import {
   IsArray,
   IsDateString,
-  IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   IsUrl,
 } from 'class-validator';
-import { CONST_LECTURE_TYPE, LECTURE_TYPE } from '../../entity/lecture.entity';
 
 export class RequestCreateLectureDto {
   @IsString()
@@ -18,10 +15,6 @@ export class RequestCreateLectureDto {
   @IsString()
   @IsNotEmpty()
   description: string;
-
-  @IsEnum(CONST_LECTURE_TYPE)
-  @IsOptional()
-  type: LECTURE_TYPE;
 
   @IsUrl()
   @IsOptional()
@@ -35,9 +28,9 @@ export class RequestCreateLectureDto {
   @IsOptional()
   expiredAt: Date;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  teacherId: number;
+  teacherName: string;
 
   @IsArray()
   @IsOptional()

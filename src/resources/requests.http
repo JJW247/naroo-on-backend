@@ -1,24 +1,3 @@
-### Create Resource Content
-POST http://localhost:3010/resource
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMxMDc0MTYxfQ.onKp43E4x6N_ritENKhdq4dEQuOInnPjcMcLL5YWboU
-content-type: application/json
-
-{
-    "type": "notice_carousel",
-    "content": "https://cdn.pixabay.com/photo/2021/07/24/20/04/mountains-6490271_960_720.jpg"
-}
-
-### Create Resource Content
-PUT http://localhost:3010/resource
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMxMDc0MTYxfQ.onKp43E4x6N_ritENKhdq4dEQuOInnPjcMcLL5YWboU
-content-type: application/json
-
-{
-    "type": "notice_carousel",
-    "content_id": "",
-    "content": "https://cdn.pixabay.com/photo/2021/07/24/20/04/mountains-6490271_960_720.jpg"
-}
-
 ### Read All Resources
 GET http://localhost:3010/resource
 authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMxMDc0MTYxfQ.onKp43E4x6N_ritENKhdq4dEQuOInnPjcMcLL5YWboU
@@ -147,37 +126,4 @@ content-type: application/json
     "type": "org_carousel",
     "content_id" : 7,
     "content": "https://naroo.or.kr/theme/mapo/img/site_08.gif"
-}
-
-### For Test
-POST http://localhost:3010/resource
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwNDU2MzgxfQ.n-9VtD7s9fSPo5PpYO-sb8OnOSyAoKXbKO0-eOnSHoo
-content-type: application/json
-
-{
-    "type": "notice_carousel",
-    "content_id" : 0,
-    "content": "https://cdn.pixabay.com/photo/2021/08/26/00/46/bridge-6574734_960_720.jpg"
-}
-
-### For Test
-POST http://localhost:3010/resource
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwNDU2MzgxfQ.n-9VtD7s9fSPo5PpYO-sb8OnOSyAoKXbKO0-eOnSHoo
-content-type: application/json
-
-{
-    "type": "notice_carousel",
-    "content_id" : 1,
-    "content": "https://cdn.pixabay.com/photo/2021/08/20/20/05/mountains-6561191_960_720.jpg"
-}
-
-### For Test
-POST http://localhost:3010/resource
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwNDU2MzgxfQ.n-9VtD7s9fSPo5PpYO-sb8OnOSyAoKXbKO0-eOnSHoo
-content-type: application/json
-
-{
-    "type": "notice_carousel",
-    "content_id" : 2,
-    "content": "https://cdn.pixabay.com/photo/2021/07/24/20/04/mountains-6490271_960_720.jpg"
 }

@@ -1,21 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Common } from '../../common/entity/common.entity';
-import { User } from '../../users/entity/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { LectureNotice } from './lectureNotice.entity';
-import { LectureReview } from './lectureReview.entity';
 import { LectureTag } from './lectureTag.entity';
 import { Question } from './question.entity';
 import { StudentLecture } from './studentLecture.entity';
 import { Video } from './video.entity';
-
-export const CONST_LECTURE_TYPE = {
-  ONLINE: 'online',
-  OFFLINE: 'offline',
-} as const;
-
-export type LECTURE_TYPE =
-  typeof CONST_LECTURE_TYPE[keyof typeof CONST_LECTURE_TYPE];
 
 @Entity()
 export class Lecture extends Common {
@@ -32,16 +22,6 @@ export class Lecture extends Common {
   })
   @Column('varchar')
   description: string;
-
-  @ApiProperty({
-    example: 'online',
-    description: '강의 타입 - 온라인 or 오프라인',
-  })
-  @Column('enum', {
-    enum: CONST_LECTURE_TYPE,
-    default: CONST_LECTURE_TYPE.ONLINE,
-  })
-  type: LECTURE_TYPE;
 
   @ApiProperty({
     example: '아마존s3url을 입력해주세요 나중에 꼮',
@@ -68,9 +48,8 @@ export class Lecture extends Common {
   @Column('timestamp', { default: null })
   expiredAt: Date;
 
-  @ManyToOne(() => User, (user) => user.teachLectures)
-  @JoinColumn()
-  teacher: User;
+  @Column('varchar')
+  teacherName: string;
 
   @OneToMany(() => Video, (video) => video.lecture)
   videos: Video[];
@@ -83,9 +62,6 @@ export class Lecture extends Common {
 
   @OneToMany(() => LectureTag, (lectureTag) => lectureTag.lecture)
   lectureTags: LectureTag[];
-
-  @OneToMany(() => LectureReview, (lectureReview) => lectureReview.lecture)
-  lectureReviews: LectureReview[];
 
   @OneToMany(() => LectureNotice, (lectureNotice) => lectureNotice.lecture)
   lectureNotices: LectureNotice[];

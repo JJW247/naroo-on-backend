@@ -2,7 +2,6 @@ import { EntityRepository, Repository } from 'typeorm';
 import { CONST_ROLE_TYPE, ROLE_TYPE, User } from '../entity/user.entity';
 import * as bcrypt from 'bcrypt';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { AddTeacherDto } from '../dto/addTeacher.dto';
 
 @EntityRepository(User)
 export class UsersRepository extends Repository<User> {
@@ -14,40 +13,6 @@ export class UsersRepository extends Repository<User> {
           nickname: user.nickname,
         }
       : { userId: null, role: null, nickname: null };
-  }
-
-  async addTeacher(user: User, addTeacherDto: AddTeacherDto) {
-    const hashedPassword = await bcrypt.hash(addTeacherDto.password, 10);
-
-    if (user.role === CONST_ROLE_TYPE.ADMIN) {
-      return await this.save({
-        email: addTeacherDto.email,
-        nickname: addTeacherDto.nickname,
-        password: hashedPassword,
-        phone: addTeacherDto.phone,
-        role: CONST_ROLE_TYPE.TEACHER,
-        introduce: addTeacherDto.introduce,
-      });
-    } else {
-      return null;
-    }
-  }
-
-  async findAllTeachers(user: User) {
-    if (user.role === CONST_ROLE_TYPE.ADMIN) {
-      const teachers = await this.find({
-        where: {
-          role: CONST_ROLE_TYPE.TEACHER,
-        },
-        select: ['id', 'email', 'nickname', 'phone', 'introduce'],
-      });
-      if (teachers.length === 0) {
-        return null;
-      }
-      return teachers;
-    } else {
-      return null;
-    }
   }
 
   async findAllStudents(user: User) {
@@ -105,9 +70,6 @@ export class UsersRepository extends Repository<User> {
     existUpdateUser.role = updateUserInfoDto.role
       ? updateUserInfoDto.role
       : existUpdateUser.role;
-    existUpdateUser.introduce = updateUserInfoDto.introduce
-      ? updateUserInfoDto.introduce
-      : existUpdateUser.introduce;
     return await this.save(existUpdateUser);
   }
 

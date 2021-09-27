@@ -19,10 +19,6 @@ export class Question extends Common {
   @Column('varchar')
   questionDescription: string;
 
-  @ManyToOne(() => User, (user) => user.answers)
-  @JoinColumn()
-  teacher: User;
-
   @Column('varchar')
   answerTitle: string;
 

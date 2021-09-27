@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Common } from '../../common/entity/common.entity';
-import { Lecture } from '../../lectures/entity/lecture.entity';
-import { LectureNotice } from '../../lectures/entity/lectureNotice.entity';
-import { LectureReview } from '../../lectures/entity/lectureReview.entity';
 import { Question } from '../../lectures/entity/question.entity';
 import { StudentLecture } from '../../lectures/entity/studentLecture.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
@@ -10,7 +7,6 @@ import { Column, Entity, OneToMany } from 'typeorm';
 export const CONST_ROLE_TYPE = {
   ADMIN: 'admin',
   STUDENT: 'student',
-  TEACHER: 'teacher',
 } as const;
 
 export type ROLE_TYPE = typeof CONST_ROLE_TYPE[keyof typeof CONST_ROLE_TYPE];
@@ -48,13 +44,6 @@ export class User extends Common {
   @Column('enum', { enum: CONST_ROLE_TYPE, default: CONST_ROLE_TYPE.STUDENT })
   role: ROLE_TYPE;
 
-  @ApiProperty({
-    example: '안녕하세요 노드 1타 강사 h662입니다.',
-    description: '강사 자기소개',
-  })
-  @Column('varchar', { default: null })
-  introduce: string;
-
   @Column('boolean', { default: false })
   isAgreeEmail: boolean;
 
@@ -67,18 +56,6 @@ export class User extends Common {
   @OneToMany(() => StudentLecture, (studentLecture) => studentLecture.user)
   studentLectures: StudentLecture[];
 
-  @OneToMany(() => Lecture, (lecture) => lecture.teacher)
-  teachLectures: Lecture[];
-
   @OneToMany(() => Question, (question) => question.student)
   questions: Question[];
-
-  @OneToMany(() => Question, (question) => question.teacher)
-  answers: Question[];
-
-  @OneToMany(() => LectureReview, (lectureReview) => lectureReview.student)
-  lectureReviews: LectureReview[];
-
-  @OneToMany(() => LectureNotice, (lectureNotice) => lectureNotice.creator)
-  lectureNotices: LectureNotice[];
 }

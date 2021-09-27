@@ -1,15 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Common } from '../../common/entity/common.entity';
 import { Lecture } from '../../lectures/entity/lecture.entity';
-import { User } from '../../users/entity/user.entity';
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity()
 export class LectureNotice extends Common {
@@ -18,10 +10,6 @@ export class LectureNotice extends Common {
   })
   @JoinColumn()
   lecture: Lecture;
-
-  @ManyToOne(() => User, (user) => user.lectureNotices, { primary: true })
-  @JoinColumn()
-  creator: User;
 
   @ApiProperty({
     example: '공지사항 제목 입니다.',

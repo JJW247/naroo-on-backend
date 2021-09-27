@@ -1,12 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Lecture } from '../../lectures/entity/lecture.entity';
-import {
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-} from 'typeorm';
+import { CreateDateColumn, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Tag } from './tag.entity';
 
 @Entity()

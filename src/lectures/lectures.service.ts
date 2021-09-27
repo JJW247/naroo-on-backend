@@ -1,38 +1,29 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import _ = require('lodash');
 import { JwtService } from '@nestjs/jwt';
-import { Lecture, LECTURE_TYPE } from './entity/lecture.entity';
 import { LectureTag } from './entity/lectureTag.entity';
 import { Question } from './entity/question.entity';
 import {
   CONST_LECTURE_STATUS,
-  LECTURE_STATUS,
   StudentLecture,
 } from './entity/studentLecture.entity';
 import { Tag } from './entity/tag.entity';
 import { Video } from './entity/video.entity';
-import { RequestCreateLectureDto } from './dto/request/requestCreateLecture.dto';
+import { RequestCreateLectureDto } from './dto/request/request-create-lecture.dto';
 import { User } from '../users/entity/user.entity';
 import { ResponseCreateLectureDto } from './dto/response/responseCreateLecture.dto';
-import { LectureReview, RATING_TYPE } from './entity/lectureReview.entity';
-
-import _ = require('lodash');
 import { LectureNotice } from './entity/lectureNotice.entity';
 import { LecturesRepository } from './repository/lectures.repository';
-
-function getAverageRating(filteredReviews: any[]) {
-  _.each(filteredReviews, (review) => _.update(review, 'rating', _.parseInt));
-  const totalRating =
-    !filteredReviews || filteredReviews.length === 0
-      ? 0
-      : Math.round(
-          (_.sumBy(['rating'], _.partial(_.sumBy, filteredReviews)) /
-            filteredReviews.length) *
-            2,
-        ) / 2;
-  return totalRating;
-}
+import { RequestUpdateLectureInfoDto } from './dto/request/request-update-lecture-info.dto';
+import { RequestLectureIdDto } from './dto/request/request-lecture-id.dto';
+import { RequestUserIdDto } from './dto/request/request-user-id.dto';
+import { RequestUpdateLectureStatusDto } from './dto/request/request-update-lecture-status.dto';
+import { RequestTagNameDto } from './dto/request/request-tag-name.dto';
+import { RequestTagIdDto } from './dto/request/request-tag-id.dto';
+import { RequestRegisterTagDto } from './dto/request/request-register-tag.dto';
+import { RequestTitleDescriptionDto } from './dto/request/request-title-description.dto';
 
 @Injectable()
 export class LecturesService {
@@ -53,8 +44,6 @@ export class LecturesService {
     private readonly videosRepository: Repository<Video>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    @InjectRepository(LectureReview)
-    private readonly lectureReviewsRepository: Repository<LectureReview>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -64,13 +53,10 @@ export class LecturesService {
     const lecture = await this.lecturesRepository.save({
       title: requestCreateLectureDto.title,
       description: requestCreateLectureDto.description,
-      type: requestCreateLectureDto.type,
       thumbnail: requestCreateLectureDto.thumbnail,
       images: requestCreateLectureDto.images,
       expiredAt: requestCreateLectureDto.expiredAt,
-      teacher: {
-        id: requestCreateLectureDto.teacherId,
-      },
+      teacherName: requestCreateLectureDto.teacherName,
     });
     for (const video of requestCreateLectureDto.videos) {
       await this.videosRepository.save({
@@ -82,70 +68,29 @@ export class LecturesService {
     return lecture;
   }
 
-  async updateLectureInfo(
-    param: { lectureId: string },
-    updateLectureInfoDto: {
-      thumbnail: string | null;
-      type: LECTURE_TYPE | null;
-      expired: Date | null;
-      title: string | null;
-      description: string | null;
-      teacherId: string | null;
-      images: string[] | null;
-      videos: { url: string; title: string }[] | null;
-    },
+  updateLectureInfo(
+    pathParam: RequestLectureIdDto,
+    requestUpdateLectureInfoDto: RequestUpdateLectureInfoDto,
   ) {
-    const existLecture = await this.lecturesRepository.findOne({
-      where: {
-        id: +param.lectureId,
-      },
-    });
-    existLecture.thumbnail = updateLectureInfoDto.thumbnail
-      ? updateLectureInfoDto.thumbnail
-      : existLecture.thumbnail;
-    existLecture.type = updateLectureInfoDto.type
-      ? updateLectureInfoDto.type
-      : existLecture.type;
-    existLecture.expiredAt = updateLectureInfoDto.expired
-      ? updateLectureInfoDto.expired
-      : existLecture.expiredAt;
-    existLecture.title = updateLectureInfoDto.title
-      ? updateLectureInfoDto.title
-      : existLecture.title;
-    existLecture.description = updateLectureInfoDto.description
-      ? updateLectureInfoDto.description
-      : existLecture.description;
-    if (updateLectureInfoDto.teacherId) {
-      const existTeacher = await this.usersRepository.findOne(
-        +updateLectureInfoDto.teacherId,
-      );
-      existLecture.teacher = existTeacher;
-    }
-    return await this.lecturesRepository.save(existLecture);
+    return this.lecturesRepository.updateLectureInfo(
+      pathParam,
+      requestUpdateLectureInfoDto,
+    );
   }
 
-  async deleteLecture(param: { lectureId: string }) {
-    const lecture = await this.lecturesRepository.findOne({
-      where: {
-        id: +param.lectureId,
-      },
-    });
-    const result = await this.lecturesRepository.delete({ id: lecture.id });
-    return result.affected === 1 ? { ok: true } : { ok: false };
+  deleteLecture(pathParam: RequestLectureIdDto) {
+    return this.deleteLecture(pathParam);
   }
 
   async readAllLectures() {
     const allLectures = await this.lecturesRepository
       .createQueryBuilder('lecture')
-      .innerJoin('lecture.teacher', 'teacher')
       .select([
         'lecture.id AS id',
         'lecture.title AS title',
         'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
-        'teacher.id AS teacher_id',
-        'teacher.nickname AS teacher_nickname',
-        'lecture.type AS type',
+        'lecture.teacherName AS teacher_nickname',
         'lecture.expiredAt AS expired',
       ])
       .orderBy('lecture.title', 'DESC')
@@ -161,75 +106,34 @@ export class LecturesService {
           .select(['tag.id AS id', 'tag.name AS name'])
           .orderBy('tag.name', 'DESC')
           .getRawMany();
-        const reviews = await this.lectureReviewsRepository
-          .createQueryBuilder('lecture_review')
-          .innerJoin('lecture_review.lecture', 'review_lecture')
-          .innerJoin('lecture_review.student', 'review_student')
-          .where('review_lecture.id = :lectureId', {
-            lectureId: lecture.id,
-          })
-          .select([
-            'lecture_review.createdAt AS created_at',
-            'review_student.id AS id',
-            'review_student.nickname AS nickname',
-            'lecture_review.review AS review',
-            'lecture_review.rating AS rating',
-          ])
-          .orderBy('created_at', 'DESC')
-          .getRawMany();
-        const filteredReviews = reviews ? [...reviews] : [];
-        const totalRating = getAverageRating(filteredReviews);
         responseLectures.push({
           id: lecture.id,
           title: lecture.title,
           description: lecture.description,
           thumbnail: lecture.thumbnail,
-          teacher_id: lecture.teacher_id,
           teacher_nickname: lecture.teacher_nickname,
-          type: lecture.type,
           expired: lecture.expired,
           tags,
-          average_rating: totalRating,
-          reviews,
         });
       });
     }, Promise.resolve());
     return responseLectures;
   }
 
-  async readLectureByIdGuest(param: { lectureId: string }) {
+  async readLectureByIdGuest(pathParam: RequestLectureIdDto) {
     const lecture = await this.lecturesRepository
       .createQueryBuilder('lecture')
-      .innerJoin('lecture.teacher', 'teacher')
-      .where('lecture.id = :lectureId', { lectureId: +param.lectureId })
+      .where('lecture.id = :lectureId', { lectureId: +pathParam.lectureId })
       .select([
         'lecture.id AS id',
         'lecture.title AS title',
         'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
         'lecture.images AS images',
-        'teacher.id AS teacher_id',
-        'teacher.nickname AS teacher_nickname',
-        'lecture.type AS type',
+        'lecture.teacherName AS teacher_nickname',
         'lecture.expiredAt AS expired',
       ])
       .getRawOne();
-    const reviews = await this.lectureReviewsRepository
-      .createQueryBuilder('lecture_review')
-      .innerJoin('lecture_review.lecture', 'review_lecture')
-      .innerJoin('lecture_review.student', 'review_student')
-      .where('review_lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
-      })
-      .select([
-        'lecture_review.createdAt AS created_at',
-        'review_student.id AS id',
-        'review_student.nickname AS nickname',
-        'lecture_review.review AS review',
-        'lecture_review.rating AS rating',
-      ])
-      .orderBy('created_at', 'DESC')
-      .getRawMany();
     const videos = await this.videosRepository
       .createQueryBuilder('video')
       .innerJoin('video.lecture', 'lecture')
@@ -240,15 +144,12 @@ export class LecturesService {
     const notices = await this.lectureNoticesRepository
       .createQueryBuilder('lecture_notice')
       .innerJoin('lecture_notice.lecture', 'lecture')
-      .innerJoin('lecture_notice.creator', 'creator')
       .where('lecture.id = :lectureId', {
         lectureId: lecture.id,
       })
       .select([
         'lecture_notice.id AS id',
         'lecture_notice.createdAt AS created_at',
-        'creator.id AS creator_id',
-        'creator.nickname AS creator_nickname',
         'lecture_notice.title AS title',
         'lecture_notice.description AS description',
       ])
@@ -262,14 +163,12 @@ export class LecturesService {
       .select(['tag.id AS id', 'tag.name AS name'])
       .orderBy('tag.name', 'DESC')
       .getRawMany();
-    const filteredReviews = reviews ? [...reviews] : [];
-    const totalRating = getAverageRating(filteredReviews);
     const users = await this.studentLecturesRepository
       .createQueryBuilder('student_lecture')
       .innerJoin('student_lecture.user', 'apply_student')
       .innerJoin('student_lecture.lecture', 'apply_lecture')
       .where('apply_lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
+        lectureId: +pathParam.lectureId,
       })
       .andWhere('student_lecture.status = :status', {
         status: CONST_LECTURE_STATUS.ACCEPT,
@@ -281,60 +180,37 @@ export class LecturesService {
       description: lecture.description,
       thumbnail: lecture.thumbnail,
       images: lecture.images,
-      teacher_id: lecture.teacher_id,
       teacher_nickname: lecture.teacher_nickname,
-      type: lecture.type,
       expired: lecture.expired,
       videos,
       notices,
       tags,
-      average_rating: totalRating,
-      reviews: reviews ? reviews : [],
       users,
     };
   }
 
-  async readLectureById(user: User, param: { lectureId: string }) {
+  async readLectureById(user: User, pathParam: RequestLectureIdDto) {
     const student = await this.studentLecturesRepository
       .createQueryBuilder('student_lecture')
       .innerJoin('student_lecture.user', 'apply_student')
       .innerJoin('student_lecture.lecture', 'apply_lecture')
       .where('apply_student.id = :studentId', { studentId: +user.id })
       .andWhere('apply_lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
+        lectureId: +pathParam.lectureId,
       })
       .select(['student_lecture.status AS status'])
       .getRawOne();
-    const reviews = await this.lectureReviewsRepository
-      .createQueryBuilder('lecture_review')
-      .innerJoin('lecture_review.lecture', 'review_lecture')
-      .innerJoin('lecture_review.student', 'review_student')
-      .where('review_lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
-      })
-      .select([
-        'lecture_review.createdAt AS created_at',
-        'review_student.id AS id',
-        'review_student.nickname AS nickname',
-        'lecture_review.review AS review',
-        'lecture_review.rating AS rating',
-      ])
-      .orderBy('created_at', 'DESC')
-      .getRawMany();
     const status = !student || !student.status ? null : student.status;
     const lecture = await this.lecturesRepository
       .createQueryBuilder('lecture')
-      .innerJoin('lecture.teacher', 'teacher')
-      .where('lecture.id = :lectureId', { lectureId: +param.lectureId })
+      .where('lecture.id = :lectureId', { lectureId: +pathParam.lectureId })
       .select([
         'lecture.id AS id',
         'lecture.title AS title',
         'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
         'lecture.images AS images',
-        'teacher.id AS teacher_id',
-        'teacher.nickname AS teacher_nickname',
-        'lecture.type AS type',
+        'lecture.teacherName AS teacher_nickname',
         'lecture.expiredAt AS expired',
       ])
       .getRawOne();
@@ -348,15 +224,12 @@ export class LecturesService {
     const notices = await this.lectureNoticesRepository
       .createQueryBuilder('lecture_notice')
       .innerJoin('lecture_notice.lecture', 'lecture')
-      .innerJoin('lecture_notice.creator', 'creator')
       .where('lecture.id = :lectureId', {
         lectureId: lecture.id,
       })
       .select([
         'lecture_notice.id AS id',
         'lecture_notice.createdAt AS created_at',
-        'creator.id AS creator_id',
-        'creator.nickname AS creator_nickname',
         'lecture_notice.title AS title',
         'lecture_notice.description AS description',
       ])
@@ -370,13 +243,12 @@ export class LecturesService {
       .select(['tag.id AS id', 'tag.name AS name'])
       .orderBy('tag.name', 'DESC')
       .getRawMany();
-    const totalRating = getAverageRating(reviews);
     const users = await this.studentLecturesRepository
       .createQueryBuilder('student_lecture')
       .innerJoin('student_lecture.user', 'apply_student')
       .innerJoin('student_lecture.lecture', 'apply_lecture')
       .where('apply_lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
+        lectureId: +pathParam.lectureId,
       })
       .andWhere('student_lecture.status = :status', {
         status: CONST_LECTURE_STATUS.ACCEPT,
@@ -388,45 +260,38 @@ export class LecturesService {
       description: lecture.description,
       thumbnail: lecture.thumbnail,
       images: lecture.images,
-      teacher_id: lecture.teacher_id,
       teacher_nickname: lecture.teacher_nickname,
-      type: lecture.type,
       status,
       expired: lecture.expired,
       videos,
       notices,
       tags,
-      average_rating: totalRating,
-      reviews: reviews ? reviews : [],
       users,
     };
   }
 
-  async readLectureVideoById(user: User, param: { lectureId: string }) {
+  async readLectureVideoById(user: User, pathParam: RequestLectureIdDto) {
     const student = await this.studentLecturesRepository
       .createQueryBuilder('student_lecture')
       .innerJoin('student_lecture.user', 'apply_student')
       .innerJoin('student_lecture.lecture', 'apply_lecture')
       .where('apply_student.id = :studentId', { studentId: +user.id })
       .andWhere('apply_lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
+        lectureId: +pathParam.lectureId,
       })
       .select(['student_lecture.status AS status'])
       .getRawOne();
     const status = !student.status ? null : student.status;
     const lecture = await this.lecturesRepository
       .createQueryBuilder('lecture')
-      .innerJoin('lecture.teacher', 'teacher')
-      .where('lecture.id = :lectureId', { lectureId: +param.lectureId })
+      .where('lecture.id = :lectureId', { lectureId: +pathParam.lectureId })
       .select([
         'lecture.id AS id',
         'lecture.title AS title',
         'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
         'lecture.images AS images',
-        'teacher.id AS teacher_id',
-        'teacher.nickname AS teacher_nickname',
-        'lecture.type AS type',
+        'lecture.teacherName AS teacher_nickname',
         'lecture.expiredAt AS expired',
       ])
       .getRawOne();
@@ -450,7 +315,7 @@ export class LecturesService {
       .innerJoin('student_lecture.user', 'apply_student')
       .innerJoin('student_lecture.lecture', 'apply_lecture')
       .where('apply_lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
+        lectureId: +pathParam.lectureId,
       })
       .andWhere('student_lecture.status = :status', {
         status: CONST_LECTURE_STATUS.ACCEPT,
@@ -462,9 +327,7 @@ export class LecturesService {
       description: lecture.description,
       thumbnail: lecture.thumbnail,
       images: lecture.images,
-      teacher_id: lecture.teacher_id,
       teacher_nickname: lecture.teacher_nickname,
-      type: lecture.type,
       status,
       expired: lecture.expired,
       videos,
@@ -478,7 +341,6 @@ export class LecturesService {
       .createQueryBuilder('student_lecture')
       .innerJoin('student_lecture.user', 'apply_student')
       .innerJoin('student_lecture.lecture', 'apply_lecture')
-      .innerJoin('apply_lecture.teacher', 'lecture_teacher')
       .where('apply_student.id = :studentId', { studentId: +user.id })
       .andWhere('student_lecture.status IN (:...statuses)', {
         statuses: [CONST_LECTURE_STATUS.APPLY, CONST_LECTURE_STATUS.ACCEPT],
@@ -487,9 +349,7 @@ export class LecturesService {
         'apply_lecture.id AS id',
         'apply_lecture.title AS title',
         'apply_lecture.thumbnail AS thumbnail',
-        'lecture_teacher.id AS teacher_id',
-        'lecture_teacher.nickname AS teacher_nickname',
-        'apply_lecture.type AS type',
+        'apply_lecture.teacherName AS teacher_nickname',
         'student_lecture.status AS status',
         'apply_lecture.expiredAt AS expired',
       ])
@@ -506,35 +366,14 @@ export class LecturesService {
           .select(['tag.id AS id', 'tag.name AS name'])
           .orderBy('tag.name', 'DESC')
           .getRawMany();
-        const reviews = await this.lectureReviewsRepository
-          .createQueryBuilder('lecture_review')
-          .innerJoin('lecture_review.lecture', 'review_lecture')
-          .innerJoin('lecture_review.student', 'review_student')
-          .where('review_lecture.id = :lectureId', {
-            lectureId: lecture.id,
-          })
-          .select([
-            'lecture_review.createdAt AS created_at',
-            'review_student.id AS id',
-            'review_student.nickname AS nickname',
-            'lecture_review.review AS review',
-            'lecture_review.rating AS rating',
-          ])
-          .orderBy('created_at', 'DESC')
-          .getRawMany();
-        const totalRating = getAverageRating(reviews);
         responseApprovedLectures.push({
           id: lecture.id,
           title: lecture.title,
           thumbnail: lecture.thumbnail,
-          teacher_id: lecture.teacher_id,
           teacher_nickname: lecture.teacher_nickname,
-          type: lecture.type,
           status: lecture.status,
           expired: lecture.expired,
           tags,
-          average_rating: totalRating,
-          reviews,
         });
       });
     }, Promise.resolve());
@@ -550,14 +389,11 @@ export class LecturesService {
 
     const allLectures = await this.lecturesRepository
       .createQueryBuilder('lecture')
-      .innerJoin('lecture.teacher', 'teacher')
       .select([
         'lecture.id AS id',
         'lecture.title AS title',
         'lecture.thumbnail AS thumbnail',
-        'teacher.id AS teacher_id',
-        'teacher.nickname AS teacher_nickname',
-        'lecture.type AS type',
+        'lecture.teacherName AS teacher_nickname',
         'lecture.expiredAt AS expired',
       ])
       .orderBy('lecture.id', 'DESC')
@@ -567,15 +403,12 @@ export class LecturesService {
       .createQueryBuilder('student_lecture')
       .leftJoin('student_lecture.user', 'apply_student')
       .leftJoin('student_lecture.lecture', 'apply_lecture')
-      .innerJoin('apply_lecture.teacher', 'lecture_teacher')
       .select([
         'apply_student.id AS student_id',
         'apply_lecture.id AS lecture_id',
         'apply_lecture.title AS title',
         'apply_lecture.thumbnail AS thumbnail',
-        'lecture_teacher.id AS teacher_id',
-        'lecture_teacher.nickname AS teacher_nickname',
-        'apply_lecture.type AS type',
+        'apply_lecture.teacherName AS teacher_nickname',
         'student_lecture.status AS status',
         'apply_lecture.expiredAt AS expired',
       ])
@@ -587,9 +420,7 @@ export class LecturesService {
       lecture_id: string;
       title: string;
       thumbnail: string;
-      teacher_id: string;
       teacher_nickname: string;
-      type: string;
       status: string | null;
       expired: string | null;
     }[] = [];
@@ -602,10 +433,8 @@ export class LecturesService {
               lecture_id: lecture.id,
               title: lecture.title,
               thumbnail: lecture.thumbnail,
-              teacher_id: lecture.teacher_id,
               teacher_nickname: lecture.teacher_nickname,
               status: null,
-              type: lecture.type,
               expired: lecture.expired,
             });
           }
@@ -627,18 +456,18 @@ export class LecturesService {
     return filteredStatuses;
   }
 
-  async registerLecture(param: { lectureId: string }, user: User) {
+  async registerLecture(pathParam: RequestLectureIdDto, user: User) {
     return await this.studentLecturesRepository.save({
       user: { id: +user.id },
-      lecture: { id: +param.lectureId },
+      lecture: { id: +pathParam.lectureId },
       status: CONST_LECTURE_STATUS.APPLY,
     });
   }
 
   async updateLectureStatus(
-    pathParam: { lectureId: string },
-    queryParam: { userId: string },
-    requestUpdateLectureStatus: { status: LECTURE_STATUS },
+    pathParam: RequestLectureIdDto,
+    queryParam: RequestUserIdDto,
+    requestUpdateLectureStatus: RequestUpdateLectureStatusDto,
   ) {
     return await this.studentLecturesRepository.save({
       user: { id: +queryParam.userId },
@@ -647,62 +476,9 @@ export class LecturesService {
     });
   }
 
-  async registerReview(
-    param: { lectureId: string },
-    user: User,
-    requestRegisterReviewDto: { review: string; rating: RATING_TYPE },
-  ) {
-    const existReview = await this.lectureReviewsRepository
-      .createQueryBuilder('lecture_review')
-      .innerJoin('lecture_review.lecture', 'review_lecture')
-      .innerJoin('lecture_review.student', 'review_student')
-      .where('review_lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
-      })
-      .andWhere('review_student.id = :studentId', {
-        studentId: +user.id,
-      })
-      .select([
-        'lecture_review.review AS review',
-        'lecture_review.rating AS rating',
-      ])
-      .getRawOne();
-    if (existReview) {
-      throw new HttpException(
-        '이미 등록된 강의 리뷰가 존재합니다!',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-    return await this.lectureReviewsRepository.save({
-      student: { id: +user.id },
-      lecture: { id: +param.lectureId },
-      review: requestRegisterReviewDto.review,
-      rating: requestRegisterReviewDto.rating,
-    });
-  }
-
-  async readRecentReviews() {
-    return await this.lectureReviewsRepository
-      .createQueryBuilder('lecture_review')
-      .innerJoin('lecture_review.lecture', 'review_lecture')
-      .innerJoin('lecture_review.student', 'review_student')
-      .select([
-        'lecture_review.createdAt AS created_at',
-        'review_student.id AS student_id',
-        'review_student.nickname AS student_nickname',
-        'review_lecture.id AS lecture_id',
-        'review_lecture.title AS lecture_title',
-        'lecture_review.review AS review',
-        'lecture_review.rating AS rating',
-      ])
-      .limit(5)
-      .orderBy('created_at', 'DESC')
-      .getRawMany();
-  }
-
-  async createTag(requestCreateTagDto: { name: string }) {
+  async createTag(requestTagNameDto: RequestTagNameDto) {
     return await this.tagsRepository.save({
-      name: requestCreateTagDto.name,
+      name: requestTagNameDto.name,
     });
   }
 
@@ -714,31 +490,34 @@ export class LecturesService {
       .getRawMany();
   }
 
-  async readTags(param: { lectureId: string }) {
+  async readTags(pathParam: RequestLectureIdDto) {
     return await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.tag', 'tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
-      .where('lecture.id = :id', { id: +param.lectureId })
+      .where('lecture.id = :id', { id: +pathParam.lectureId })
       .select(['tag.id AS id', 'tag.name AS name'])
       .orderBy('tag.name', 'DESC')
       .getRawMany();
   }
 
-  async updateTag(param: { tagId: string }, updateTagDto: { tagName: string }) {
+  async updateTag(
+    pathParam: RequestTagIdDto,
+    requestTagNameDto: RequestTagNameDto,
+  ) {
     const tag = await this.tagsRepository.findOne({
       where: {
-        id: +param.tagId,
+        id: +pathParam.tagId,
       },
     });
-    tag.name = updateTagDto.tagName;
+    tag.name = requestTagNameDto.name;
     return await this.tagsRepository.save(tag);
   }
 
-  async deleteTag(param: { tagId: string }) {
+  async deleteTag(pathParam: RequestTagIdDto) {
     const tag = await this.tagsRepository.findOne({
       where: {
-        id: +param.tagId,
+        id: +pathParam.tagId,
       },
     });
     const result = await this.tagsRepository.delete({ id: tag.id });
@@ -746,16 +525,16 @@ export class LecturesService {
   }
 
   async registerTag(
-    pathParam: { lectureId: string },
-    registerTagDto: { ids: string[] },
+    pathParam: RequestLectureIdDto,
+    requestRegisterTagDto: RequestRegisterTagDto,
   ) {
-    if (registerTagDto.ids.length <= 0) {
+    if (requestRegisterTagDto.ids.length <= 0) {
       return { ok: false };
     }
 
-    const ids = Array.isArray(registerTagDto.ids)
-      ? registerTagDto.ids
-      : [registerTagDto.ids];
+    const ids = Array.isArray(requestRegisterTagDto.ids)
+      ? requestRegisterTagDto.ids
+      : [requestRegisterTagDto.ids];
 
     const existTags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
@@ -789,15 +568,15 @@ export class LecturesService {
   }
 
   async unregisterTag(
-    pathParam: { lectureId: string },
-    unregisterTagDto: { id: string },
+    pathParam: RequestLectureIdDto,
+    queryParam: RequestTagIdDto,
   ) {
     const existTag = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
       .innerJoin('lecture_tag.tag', 'tag')
       .where('lecture.id = :lectureId', { lectureId: pathParam.lectureId })
-      .where('tag.id = :tagId', { tagId: unregisterTagDto.id })
+      .where('tag.id = :tagId', { tagId: queryParam.tagId })
       .select(['lecture.id AS lecture_id', 'tag.id AS tag_id'])
       .getRawOne();
 
@@ -816,33 +595,27 @@ export class LecturesService {
   }
 
   async createNotice(
-    param: { lectureId: string },
+    pathParam: RequestLectureIdDto,
     user: User,
-    requestCreateNoticeDto: {
-      title: string;
-      description: string;
-    },
+    requestTitleDescriptionDto: RequestTitleDescriptionDto,
   ) {
     return await this.lectureNoticesRepository.save({
-      lecture: { id: +param.lectureId },
-      creator: { id: +user.id },
-      title: requestCreateNoticeDto.title,
-      description: requestCreateNoticeDto.description,
+      lecture: { id: +pathParam.lectureId },
+      title: requestTitleDescriptionDto.title,
+      description: requestTitleDescriptionDto.description,
     });
   }
 
-  async readNotices(param: { lectureId: string }) {
+  async readNotices(pathParam: RequestLectureIdDto) {
     return await this.lectureNoticesRepository
       .createQueryBuilder('lecture_notice')
       .innerJoin('lecture_notice.lecture', 'lecture')
-      .innerJoin('lecture_notice.creator', 'creator')
       .where('lecture.id = :lectureId', {
-        lectureId: +param.lectureId,
+        lectureId: +pathParam.lectureId,
       })
       .select([
         'lecture_notice.id AS id',
         'lecture_notice.createdAt AS created_at',
-        'lecture_notice.creator AS creator',
         'lecture_notice.title AS title',
         'lecture_notice.description AS description',
       ])
@@ -851,37 +624,36 @@ export class LecturesService {
   }
 
   async createQuestion(
-    param: { lectureId: string },
+    pathParam: RequestLectureIdDto,
     user: User,
-    requestCreateQuestionDto: { title: string; description: string },
+    requestTitleDescriptionDto: RequestTitleDescriptionDto,
   ) {
     return await this.questionsRepository.save({
-      lecture: { id: +param.lectureId },
+      lecture: { id: +pathParam.lectureId },
       student: { id: +user.id },
-      questionTitle: requestCreateQuestionDto.title,
-      questionDescription: requestCreateQuestionDto.description,
+      questionTitle: requestTitleDescriptionDto.title,
+      questionDescription: requestTitleDescriptionDto.description,
     });
   }
 
   async createAnswer(
-    param: { lectureId: string },
+    pathParam: RequestLectureIdDto,
     user: User,
-    requestCreateAnswerDto: { title: string; description: string },
+    requestTitleDescriptionDto: RequestTitleDescriptionDto,
   ) {
     return await this.questionsRepository.save({
-      lecture: { id: +param.lectureId },
-      answerTitle: requestCreateAnswerDto.title,
-      answerDescription: requestCreateAnswerDto.description,
+      lecture: { id: +pathParam.lectureId },
+      answerTitle: requestTitleDescriptionDto.title,
+      answerDescription: requestTitleDescriptionDto.description,
     });
   }
 
-  async readQnas(param: { lectureId: string }) {
+  async readQnas(pathParam: RequestLectureIdDto) {
     return await this.questionsRepository
       .createQueryBuilder('question')
       .innerJoin('question.lecture', 'lecture')
       .innerJoin('question.student', 'student')
-      .innerJoin('question.teacher', 'teacher')
-      .where('lecture.id = :id', { id: +param.lectureId })
+      .where('lecture.id = :id', { id: +pathParam.lectureId })
       .select([
         'question.createdAt AS question_created_at',
         'question.title AS questionTitle',
