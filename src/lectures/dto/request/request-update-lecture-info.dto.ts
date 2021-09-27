@@ -1,9 +1,35 @@
+import { IsDateString, IsOptional, IsString } from 'class-validator';
+
 export class RequestUpdateLectureInfoDto {
-  thumbnail: string | null;
-  expired: Date | null;
-  title: string | null;
-  description: string | null;
-  teacherName: string | null;
-  images: string[] | null;
-  videos: { url: string; title: string }[] | null;
+  @IsString()
+  @IsOptional()
+  thumbnail: string;
+
+  @IsDateString()
+  @IsOptional()
+  expired: Date;
+
+  @IsString()
+  @IsOptional()
+  title: string;
+
+  @IsString()
+  @IsOptional()
+  description: string;
+
+  @IsString()
+  @IsOptional()
+  teacherName: string;
+
+  @IsString({ each: true })
+  @IsOptional({ each: true })
+  images: string[];
+
+  @IsString()
+  @IsOptional()
+  videosUrl: string;
+
+  @IsString()
+  @IsOptional()
+  videoTitle: string;
 }

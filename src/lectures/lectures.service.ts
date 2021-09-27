@@ -10,7 +10,6 @@ import {
   StudentLecture,
 } from './entity/studentLecture.entity';
 import { Tag } from './entity/tag.entity';
-import { Video } from './entity/video.entity';
 import { RequestCreateLectureDto } from './dto/request/request-create-lecture.dto';
 import { User } from '../users/entity/user.entity';
 import { ResponseCreateLectureDto } from './dto/response/responseCreateLecture.dto';
@@ -40,32 +39,15 @@ export class LecturesService {
     private readonly studentLecturesRepository: Repository<StudentLecture>,
     @InjectRepository(Tag)
     private readonly tagsRepository: Repository<Tag>,
-    @InjectRepository(Video)
-    private readonly videosRepository: Repository<Video>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}
 
-  async createLecture(
+  createLecture(
     requestCreateLectureDto: RequestCreateLectureDto,
   ): Promise<ResponseCreateLectureDto | string> {
-    const lecture = await this.lecturesRepository.save({
-      title: requestCreateLectureDto.title,
-      description: requestCreateLectureDto.description,
-      thumbnail: requestCreateLectureDto.thumbnail,
-      images: requestCreateLectureDto.images,
-      expiredAt: requestCreateLectureDto.expiredAt,
-      teacherName: requestCreateLectureDto.teacherName,
-    });
-    for (const video of requestCreateLectureDto.videos) {
-      await this.videosRepository.save({
-        title: video.title,
-        url: video.url,
-        lecture: { id: lecture.id },
-      });
-    }
-    return lecture;
+    return this.lecturesRepository.createLecture(requestCreateLectureDto);
   }
 
   updateLectureInfo(
@@ -79,7 +61,7 @@ export class LecturesService {
   }
 
   deleteLecture(pathParam: RequestLectureIdDto) {
-    return this.deleteLecture(pathParam);
+    return this.lecturesRepository.deleteLecture(pathParam);
   }
 
   async readAllLectures() {
@@ -132,15 +114,10 @@ export class LecturesService {
         'lecture.images AS images',
         'lecture.teacherName AS teacher_nickname',
         'lecture.expiredAt AS expired',
+        'lecture.videoUrl AS video_url',
+        'lecture.videoTitle AS video_title',
       ])
       .getRawOne();
-    const videos = await this.videosRepository
-      .createQueryBuilder('video')
-      .innerJoin('video.lecture', 'lecture')
-      .where('lecture.id = :lectureId', { lectureId: lecture.id })
-      .select(['video.id AS id'])
-      .orderBy('video.id', 'ASC')
-      .getRawMany();
     const notices = await this.lectureNoticesRepository
       .createQueryBuilder('lecture_notice')
       .innerJoin('lecture_notice.lecture', 'lecture')
@@ -182,7 +159,8 @@ export class LecturesService {
       images: lecture.images,
       teacher_nickname: lecture.teacher_nickname,
       expired: lecture.expired,
-      videos,
+      video_title: lecture.video_title,
+      video_url: lecture.video_url,
       notices,
       tags,
       users,
@@ -212,15 +190,10 @@ export class LecturesService {
         'lecture.images AS images',
         'lecture.teacherName AS teacher_nickname',
         'lecture.expiredAt AS expired',
+        'lecture.videoTitle AS video_title',
+        'lecture.videoUrl AS video_url',
       ])
       .getRawOne();
-    const videos = await this.videosRepository
-      .createQueryBuilder('video')
-      .innerJoin('video.lecture', 'lecture')
-      .where('lecture.id = :lectureId', { lectureId: lecture.id })
-      .select(['video.id AS id'])
-      .orderBy('video.id', 'ASC')
-      .getRawMany();
     const notices = await this.lectureNoticesRepository
       .createQueryBuilder('lecture_notice')
       .innerJoin('lecture_notice.lecture', 'lecture')
@@ -263,7 +236,8 @@ export class LecturesService {
       teacher_nickname: lecture.teacher_nickname,
       status,
       expired: lecture.expired,
-      videos,
+      video_title: lecture.video_title,
+      video_url: lecture.video_url,
       notices,
       tags,
       users,
@@ -293,15 +267,11 @@ export class LecturesService {
         'lecture.images AS images',
         'lecture.teacherName AS teacher_nickname',
         'lecture.expiredAt AS expired',
+        'lecture.videoTitle AS video_title',
+        'lecture.videoUrl AS video_url',
       ])
       .getRawOne();
-    const videos = await this.videosRepository
-      .createQueryBuilder('video')
-      .innerJoin('video.lecture', 'lecture')
-      .where('lecture.id = :lectureId', { lectureId: lecture.id })
-      .select(['video.id AS id', 'video.url AS url', 'video.title AS title'])
-      .orderBy('video.id', 'ASC')
-      .getRawMany();
+    console.log(lecture);
     const tags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
@@ -330,7 +300,8 @@ export class LecturesService {
       teacher_nickname: lecture.teacher_nickname,
       status,
       expired: lecture.expired,
-      videos,
+      video_title: lecture.video_title,
+      video_url: lecture.video_url,
       tags,
       users,
     };
@@ -515,6 +486,7 @@ export class LecturesService {
   }
 
   async deleteTag(pathParam: RequestTagIdDto) {
+    console.log(pathParam);
     const tag = await this.tagsRepository.findOne({
       where: {
         id: +pathParam.tagId,
@@ -569,14 +541,16 @@ export class LecturesService {
 
   async unregisterTag(
     pathParam: RequestLectureIdDto,
-    queryParam: RequestTagIdDto,
+    queryParam: { id: number },
   ) {
+    console.log(pathParam);
+    console.log(queryParam);
     const existTag = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
       .innerJoin('lecture_tag.tag', 'tag')
       .where('lecture.id = :lectureId', { lectureId: pathParam.lectureId })
-      .where('tag.id = :tagId', { tagId: queryParam.tagId })
+      .andWhere('tag.id = :tagId', { tagId: queryParam.id })
       .select(['lecture.id AS lecture_id', 'tag.id AS tag_id'])
       .getRawOne();
 

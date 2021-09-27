@@ -165,7 +165,7 @@ export class LecturesController {
   @UseGuards(AdminUserGuard)
   unregisterTag(
     @Param() pathParam: RequestLectureIdDto,
-    @Query() queryParam: RequestTagIdDto,
+    @Query() queryParam: { id: number },
   ) {
     return this.lecturesService.unregisterTag(pathParam, queryParam);
   }

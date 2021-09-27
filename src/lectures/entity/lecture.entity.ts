@@ -5,7 +5,6 @@ import { LectureNotice } from './lectureNotice.entity';
 import { LectureTag } from './lectureTag.entity';
 import { Question } from './question.entity';
 import { StudentLecture } from './studentLecture.entity';
-import { Video } from './video.entity';
 
 @Entity()
 export class Lecture extends Common {
@@ -51,8 +50,11 @@ export class Lecture extends Common {
   @Column('varchar')
   teacherName: string;
 
-  @OneToMany(() => Video, (video) => video.lecture)
-  videos: Video[];
+  @Column('varchar')
+  videoUrl: string;
+
+  @Column('varchar')
+  videoTitle: string;
 
   @OneToMany(() => StudentLecture, (studentLecture) => studentLecture.lecture)
   studentLectures: StudentLecture[];

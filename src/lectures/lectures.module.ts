@@ -8,7 +8,6 @@ import { LectureTag } from './entity/lectureTag.entity';
 import { Question } from './entity/question.entity';
 import { StudentLecture } from './entity/studentLecture.entity';
 import { Tag } from './entity/tag.entity';
-import { Video } from './entity/video.entity';
 import { LecturesController } from './lectures.controller';
 import { LecturesService } from './lectures.service';
 import { LecturesRepository } from './repository/lectures.repository';
@@ -22,7 +21,6 @@ import { LecturesRepository } from './repository/lectures.repository';
       Question,
       StudentLecture,
       Tag,
-      Video,
       User,
     ]),
     JwtModule.registerAsync({

@@ -32,14 +32,15 @@ export class RequestCreateLectureDto {
   @IsNotEmpty()
   teacherName: string;
 
-  @IsArray()
-  @IsOptional()
-  tags: number[];
+  @IsString({ each: true })
+  @IsOptional({ each: true })
+  tags: string[];
 
-  @IsArray()
-  @IsNotEmpty()
-  videos: {
-    url: string;
-    title: string;
-  }[];
+  @IsString()
+  @IsOptional()
+  videoUrl: string;
+
+  @IsString()
+  @IsOptional()
+  videoTitle: string;
 }
