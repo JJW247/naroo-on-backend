@@ -8,7 +8,7 @@ export class LectureTag {
   @ManyToOne(() => Lecture, (lecture) => lecture.lectureTags, {
     primary: true,
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   lecture: Lecture;
@@ -16,7 +16,7 @@ export class LectureTag {
   @ManyToOne(() => Tag, (tag) => tag.lectureTags, {
     primary: true,
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   tag: Tag;
