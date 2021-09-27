@@ -543,8 +543,6 @@ export class LecturesService {
     pathParam: RequestLectureIdDto,
     queryParam: { id: number },
   ) {
-    console.log(pathParam);
-    console.log(queryParam);
     const existTag = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
@@ -595,6 +593,24 @@ export class LecturesService {
       ])
       .orderBy('lecture_notice.createdAt', 'DESC')
       .getRawMany();
+  }
+
+  async deleteNotice(
+    pathParam: RequestLectureIdDto,
+    queryParam: { id: number },
+  ) {
+    const notice = await this.lectureNoticesRepository.findOne({
+      where: {
+        lecture: +pathParam.lectureId,
+        id: +queryParam.id,
+      },
+    });
+    console.log(notice);
+    const result = await this.lectureNoticesRepository.delete({
+      lecture: { id: +pathParam.lectureId },
+      id: +queryParam.id,
+    });
+    return result.affected === 1 ? { ok: true } : { ok: false };
   }
 
   async createQuestion(

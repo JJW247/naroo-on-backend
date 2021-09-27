@@ -190,6 +190,15 @@ export class LecturesController {
     return this.lecturesService.readNotices(pathParam);
   }
 
+  @Delete('/admin/notice/:lectureId')
+  @UseGuards(AdminUserGuard)
+  deleteNotice(
+    @Param() pathParam: RequestLectureIdDto,
+    @Query() queryParam: { id: number },
+  ) {
+    return this.lecturesService.deleteNotice(pathParam, queryParam);
+  }
+
   @Post('/question/:lectureId')
   @UseGuards(StudentUserGuard)
   createQuestion(
