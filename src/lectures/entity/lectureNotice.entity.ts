@@ -7,6 +7,8 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 export class LectureNotice extends Common {
   @ManyToOne(() => Lecture, (lecture) => lecture.lectureNotices, {
     primary: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   lecture: Lecture;

@@ -22,12 +22,18 @@ export type LECTURE_STATUS =
 
 @Entity()
 export class StudentLecture {
-  @ManyToOne(() => User, (user) => user.studentLectures, { primary: true })
+  @ManyToOne(() => User, (user) => user.studentLectures, {
+    primary: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   user: User;
 
   @ManyToOne(() => Lecture, (lecture) => lecture.studentLectures, {
     primary: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   lecture: Lecture;
