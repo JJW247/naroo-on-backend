@@ -74,6 +74,8 @@ export class LecturesService {
         'lecture.thumbnail AS thumbnail',
         'lecture.teacherName AS teacher_nickname',
         'lecture.expiredAt AS expired',
+        'lecture.videoUrl AS video_url',
+        'lecture.videoTitle AS video_title',
       ])
       .orderBy('lecture.title', 'DESC')
       .getRawMany();
@@ -96,6 +98,8 @@ export class LecturesService {
           teacher_nickname: lecture.teacher_nickname,
           expired: lecture.expired,
           tags,
+          video_title: lecture.video_title,
+          video_url: lecture.video_url,
         });
       });
     }, Promise.resolve());

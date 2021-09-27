@@ -27,9 +27,9 @@ export class RequestUpdateLectureInfoDto {
 
   @IsString()
   @IsOptional()
-  videosUrl: string;
+  video_title: string;
 
   @IsString()
   @IsOptional()
-  videoTitle: string;
+  video_url: string;
 }

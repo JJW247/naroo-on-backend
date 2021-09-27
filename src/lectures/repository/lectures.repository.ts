@@ -46,6 +46,12 @@ export class LecturesRepository extends Repository<Lecture> {
     existLecture.teacherName = requestUpdateLectureInfoDto.teacherName
       ? requestUpdateLectureInfoDto.teacherName
       : existLecture.teacherName;
+    existLecture.videoTitle = requestUpdateLectureInfoDto.video_title
+      ? requestUpdateLectureInfoDto.video_title
+      : existLecture.videoTitle;
+    existLecture.videoUrl = requestUpdateLectureInfoDto.video_url
+      ? requestUpdateLectureInfoDto.video_url
+      : existLecture.videoUrl;
     return await this.save(existLecture);
   }
 
