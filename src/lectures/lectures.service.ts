@@ -404,7 +404,11 @@ export class LecturesService {
   async readLectureStatuses() {
     const allStudents = await this.usersRepository
       .createQueryBuilder('user')
-      .select('user.id AS id')
+      .select([
+        'user.id AS id',
+        'user.nickname AS nickname',
+        'user.email AS email',
+      ])
       .orderBy('user.id', 'DESC')
       .getRawMany();
 
@@ -438,6 +442,8 @@ export class LecturesService {
 
     const filteredStatuses: {
       student_id: string;
+      student_email: string;
+      student_nickname: string;
       lecture_id: string;
       title: string;
       thumbnail: string;
@@ -451,6 +457,8 @@ export class LecturesService {
           if (lecture) {
             filteredStatuses.push({
               student_id: student.id,
+              student_email: student.email,
+              student_nickname: student.nickname,
               lecture_id: lecture.id,
               title: lecture.title,
               thumbnail: lecture.thumbnail,
