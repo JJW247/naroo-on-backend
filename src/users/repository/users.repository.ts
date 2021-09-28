@@ -50,11 +50,25 @@ export class UsersRepository extends Repository<User> {
     ) {
       throw new HttpException('관리자 권한이 없습니다!', HttpStatus.FORBIDDEN);
     }
+    if (
+      typeof user.role === typeof CONST_ROLE_TYPE &&
+      user.role !== CONST_ROLE_TYPE.STUDENT
+    ) {
+      if (user.id !== +param.userId) {
+        throw new HttpException(
+          '회원 정보를 수정할 권한이 없습니다!',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+    }
     const existUpdateUser = await this.findOne({
       where: {
         id: +param.userId,
       },
     });
+    if (!existUpdateUser) {
+      throw new HttpException('잘못된 요청입니다!', HttpStatus.BAD_REQUEST);
+    }
     existUpdateUser.email = updateUserInfoDto.email
       ? updateUserInfoDto.email
       : existUpdateUser.email;
