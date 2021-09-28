@@ -1,7 +1,8 @@
 import { Common } from '../../common/entity/common.entity';
 import { Lecture } from '../../lectures/entity/lecture.entity';
 import { User } from '../../users/entity/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
+import { Answer } from './answer.entity';
 
 @Entity()
 export class Question extends Common {
@@ -14,14 +15,11 @@ export class Question extends Common {
   student: User;
 
   @Column('varchar')
-  questionTitle: string;
+  title: string;
 
   @Column('varchar')
-  questionDescription: string;
+  description: string;
 
-  @Column('varchar')
-  answerTitle: string;
-
-  @Column('varchar')
-  answerDescription: string;
+  @OneToOne(() => Answer, (answer) => answer.question)
+  answer: Answer;
 }

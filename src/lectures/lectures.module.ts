@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entity/user.entity';
+import { Answer } from './entity/answer.entity';
 import { LectureNotice } from './entity/lectureNotice.entity';
 import { LectureTag } from './entity/lectureTag.entity';
 import { Question } from './entity/question.entity';
@@ -19,6 +20,7 @@ import { LecturesRepository } from './repository/lectures.repository';
       LectureTag,
       LectureNotice,
       Question,
+      Answer,
       StudentLecture,
       Tag,
       User,

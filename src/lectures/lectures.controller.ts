@@ -25,6 +25,8 @@ import { RequestTagNameDto } from './dto/request/request-tag-name.dto';
 import { RequestTagIdDto } from './dto/request/request-tag-id.dto';
 import { RequestRegisterTagDto } from './dto/request/request-register-tag.dto';
 import { RequestTitleDescriptionDto } from './dto/request/request-title-description.dto';
+import { RequestCreateAnswerDto } from './dto/request/request-create-answer.dto';
+import { RequestAnswerIdDto } from './dto/request/request-answer-id.dto';
 
 @Controller('lecture')
 export class LecturesController {
@@ -206,6 +208,7 @@ export class LecturesController {
     @GetUser() user: User,
     @Body() requestTitleDescriptionDto: RequestTitleDescriptionDto,
   ) {
+    console.log(requestTitleDescriptionDto);
     return this.lecturesService.createQuestion(
       pathParam,
       user,
@@ -213,22 +216,24 @@ export class LecturesController {
     );
   }
 
-  @Post('/admin/answer/:lectureId')
+  @Delete('/admin/question/:lectureId')
   @UseGuards(AdminUserGuard)
-  createAnswer(
+  deleteQuestion(
     @Param() pathParam: RequestLectureIdDto,
-    @GetUser() user: User,
-    @Body() requestTitleDescriptionDto: RequestTitleDescriptionDto,
+    @Query() queryParam: { id: number },
   ) {
-    return this.lecturesService.createAnswer(
-      pathParam,
-      user,
-      requestTitleDescriptionDto,
-    );
+    return this.lecturesService.deleteQuestion(pathParam, queryParam);
   }
 
-  @Get('/lecture/question/:lectureId')
-  readQnas(@Param() pathParam: RequestLectureIdDto) {
-    return this.lecturesService.readQnas(pathParam);
+  @Post('/admin/answer')
+  @UseGuards(AdminUserGuard)
+  createAnswer(@Body() requestCreateAnswerDto: RequestCreateAnswerDto) {
+    return this.lecturesService.createAnswer(requestCreateAnswerDto);
+  }
+
+  @Delete('/admin/answer/:answerId')
+  @UseGuards(AdminUserGuard)
+  deleteAnswer(@Param() pathParam: RequestAnswerIdDto) {
+    return this.lecturesService.deleteAnswer(pathParam);
   }
 }

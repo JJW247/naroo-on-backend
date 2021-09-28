@@ -23,6 +23,9 @@ import { RequestTagNameDto } from './dto/request/request-tag-name.dto';
 import { RequestTagIdDto } from './dto/request/request-tag-id.dto';
 import { RequestRegisterTagDto } from './dto/request/request-register-tag.dto';
 import { RequestTitleDescriptionDto } from './dto/request/request-title-description.dto';
+import { RequestCreateAnswerDto } from './dto/request/request-create-answer.dto';
+import { Answer } from './entity/answer.entity';
+import { RequestAnswerIdDto } from './dto/request/request-answer-id.dto';
 
 @Injectable()
 export class LecturesService {
@@ -35,6 +38,8 @@ export class LecturesService {
     private readonly lectureNoticesRepository: Repository<LectureNotice>,
     @InjectRepository(Question)
     private readonly questionsRepository: Repository<Question>,
+    @InjectRepository(Answer)
+    private readonly answersRepository: Repository<Answer>,
     @InjectRepository(StudentLecture)
     private readonly studentLecturesRepository: Repository<StudentLecture>,
     @InjectRepository(Tag)
@@ -155,6 +160,26 @@ export class LecturesService {
         status: CONST_LECTURE_STATUS.ACCEPT,
       })
       .getCount();
+    const qnas = await this.questionsRepository
+      .createQueryBuilder('question')
+      .innerJoin('question.lecture', 'lecture')
+      .innerJoin('question.student', 'student')
+      .leftJoin('question.answer', 'answer')
+      .where('lecture.id = :lectureId', { lectureId: +pathParam.lectureId })
+      .select([
+        'question.id AS question_id',
+        'answer.id AS answer_id',
+        'student.id AS creator_id',
+        'student.nickname AS creator_nickname',
+        'question.createdAt AS question_created_at',
+        'question.title AS question_title',
+        'question.description AS question_description',
+        'answer.createdAt AS answer_created_at',
+        'answer.title AS answer_title',
+        'answer.description AS answer_description',
+      ])
+      .orderBy('question.createdAt', 'DESC')
+      .getRawMany();
     return {
       id: lecture.id,
       title: lecture.title,
@@ -168,6 +193,7 @@ export class LecturesService {
       notices,
       tags,
       users,
+      qnas,
     };
   }
 
@@ -231,6 +257,26 @@ export class LecturesService {
         status: CONST_LECTURE_STATUS.ACCEPT,
       })
       .getCount();
+    const qnas = await this.questionsRepository
+      .createQueryBuilder('question')
+      .innerJoin('question.lecture', 'lecture')
+      .innerJoin('question.student', 'student')
+      .leftJoin('question.answer', 'answer')
+      .where('lecture.id = :lectureId', { lectureId: +pathParam.lectureId })
+      .select([
+        'question.id AS question_id',
+        'answer.id AS answer_id',
+        'student.id AS creator_id',
+        'student.nickname AS creator_nickname',
+        'question.createdAt AS question_created_at',
+        'question.title AS question_title',
+        'question.description AS question_description',
+        'answer.createdAt AS answer_created_at',
+        'answer.title AS answer_title',
+        'answer.description AS answer_description',
+      ])
+      .orderBy('question.createdAt', 'DESC')
+      .getRawMany();
     return {
       id: lecture.id,
       title: lecture.title,
@@ -245,6 +291,7 @@ export class LecturesService {
       notices,
       tags,
       users,
+      qnas,
     };
   }
 
@@ -275,7 +322,6 @@ export class LecturesService {
         'lecture.videoUrl AS video_url',
       ])
       .getRawOne();
-    console.log(lecture);
     const tags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
@@ -490,7 +536,6 @@ export class LecturesService {
   }
 
   async deleteTag(pathParam: RequestTagIdDto) {
-    console.log(pathParam);
     const tag = await this.tagsRepository.findOne({
       where: {
         id: +pathParam.tagId,
@@ -609,7 +654,12 @@ export class LecturesService {
         id: +queryParam.id,
       },
     });
-    console.log(notice);
+    if (!notice) {
+      throw new HttpException(
+        '존재하지 않는 공지사항입니다!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const result = await this.lectureNoticesRepository.delete({
       lecture: { id: +pathParam.lectureId },
       id: +queryParam.id,
@@ -625,38 +675,57 @@ export class LecturesService {
     return await this.questionsRepository.save({
       lecture: { id: +pathParam.lectureId },
       student: { id: +user.id },
-      questionTitle: requestTitleDescriptionDto.title,
-      questionDescription: requestTitleDescriptionDto.description,
+      title: requestTitleDescriptionDto.title,
+      description: requestTitleDescriptionDto.description,
     });
   }
 
-  async createAnswer(
+  async deleteQuestion(
     pathParam: RequestLectureIdDto,
-    user: User,
-    requestTitleDescriptionDto: RequestTitleDescriptionDto,
+    queryParam: { id: number },
   ) {
-    return await this.questionsRepository.save({
+    const question = await this.questionsRepository.findOne({
+      where: {
+        lecture: +pathParam.lectureId,
+        id: +queryParam.id,
+      },
+    });
+    if (!question) {
+      throw new HttpException(
+        '존재하지 않는 문의사항입니다!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const result = await this.questionsRepository.delete({
       lecture: { id: +pathParam.lectureId },
-      answerTitle: requestTitleDescriptionDto.title,
-      answerDescription: requestTitleDescriptionDto.description,
+      id: +queryParam.id,
+    });
+    return result.affected === 1 ? { ok: true } : { ok: false };
+  }
+
+  async createAnswer(requestCreateAnswerDto: RequestCreateAnswerDto) {
+    return await this.answersRepository.save({
+      question: { id: +requestCreateAnswerDto.question_id },
+      title: requestCreateAnswerDto.title,
+      description: requestCreateAnswerDto.description,
     });
   }
 
-  async readQnas(pathParam: RequestLectureIdDto) {
-    return await this.questionsRepository
-      .createQueryBuilder('question')
-      .innerJoin('question.lecture', 'lecture')
-      .innerJoin('question.student', 'student')
-      .where('lecture.id = :id', { id: +pathParam.lectureId })
-      .select([
-        'question.createdAt AS question_created_at',
-        'question.title AS questionTitle',
-        'question.description AS questionDescription',
-        'answer.createdAt AS answer_created_at',
-        'answer.title AS answerTitle',
-        'answer.description AS answerDescription',
-      ])
-      .orderBy('question.createdAt', 'DESC')
-      .getRawMany();
+  async deleteAnswer(pathParam: RequestAnswerIdDto) {
+    const answer = await this.answersRepository.findOne({
+      where: {
+        id: pathParam.answerId,
+      },
+    });
+    if (!answer) {
+      throw new HttpException(
+        '존재하지 않는 응답사항입니다!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const result = await this.answersRepository.delete({
+      id: +pathParam.answerId,
+    });
+    return result.affected === 1 ? { ok: true } : { ok: false };
   }
 }
