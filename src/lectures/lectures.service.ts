@@ -404,6 +404,7 @@ export class LecturesService {
   async readLectureStatuses() {
     const allStudents = await this.usersRepository
       .createQueryBuilder('user')
+      .where('user.role != :userRole', { userRole: 'admin' })
       .select([
         'user.id AS id',
         'user.nickname AS nickname',
