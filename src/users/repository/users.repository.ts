@@ -15,21 +15,31 @@ export class UsersRepository extends Repository<User> {
       : { userId: null, role: null, nickname: null };
   }
 
+  async getMyInfo(user: User) {
+    const student = await this.findOne({
+      where: { id: +user.id },
+      select: ['id', 'email', 'nickname', 'phone'],
+    });
+    if (!student) {
+      throw new HttpException(
+        '해당 유저가 존재하지 않습니다!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return student;
+  }
+
   async findAllStudents(user: User) {
-    if (user.role === CONST_ROLE_TYPE.ADMIN) {
-      const students = await this.find({
-        where: {
-          role: CONST_ROLE_TYPE.STUDENT,
-        },
-        select: ['id', 'email', 'nickname', 'phone'],
-      });
-      if (students.length === 0) {
-        return null;
-      }
-      return students;
-    } else {
+    const students = await this.find({
+      where: {
+        role: CONST_ROLE_TYPE.STUDENT,
+      },
+      select: ['id', 'email', 'nickname', 'phone'],
+    });
+    if (students.length === 0) {
       return null;
     }
+    return students;
   }
 
   async updateUserInfo(

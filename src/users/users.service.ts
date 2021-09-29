@@ -135,6 +135,10 @@ export class UsersService {
     return this.usersRepository.getMe(user);
   }
 
+  getMyInfo(user: User) {
+    return this.usersRepository.getMyInfo(user);
+  }
+
   findAllStudents(user: User) {
     return this.usersRepository.findAllStudents(user);
   }

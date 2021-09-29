@@ -15,6 +15,8 @@ import { ROLE_TYPE, User } from './entity/user.entity';
 import { SignUpDto } from './dto/signUp.dto';
 import { SignInDto } from './dto/signIn.dto';
 import { GetUser } from './decorator/get-user.decorator';
+import { AdminUserGuard } from './guard/admin-user.guard';
+import { StudentUserGuard } from './guard/student-user.guard';
 
 @Controller('user')
 export class UsersController {
@@ -41,8 +43,14 @@ export class UsersController {
     return this.usersService.getMe(user);
   }
 
+  @Get('/myinfo')
+  @UseGuards(StudentUserGuard)
+  getMyInfo(@GetUser() user: User) {
+    return this.usersService.getMyInfo(user);
+  }
+
   @Get('/admin/student')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AdminUserGuard)
   findAllStudents(@GetUser() user: User) {
     return this.usersService.findAllStudents(user);
   }
