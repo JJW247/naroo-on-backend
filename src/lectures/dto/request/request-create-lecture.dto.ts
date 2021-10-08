@@ -16,12 +16,12 @@ export class RequestCreateLectureDto {
   @IsNotEmpty()
   description: string;
 
-  @IsUrl()
+  @IsString()
   @IsOptional()
   thumbnail: string;
 
-  @IsArray()
-  @IsOptional()
+  @IsString({ each: true })
+  @IsOptional({ each: true })
   images: string[];
 
   @IsDateString()
