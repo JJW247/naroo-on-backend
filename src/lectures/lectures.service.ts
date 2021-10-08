@@ -75,6 +75,7 @@ export class LecturesService {
       .select([
         'lecture.id AS id',
         'lecture.title AS title',
+        'lecture.images AS images',
         'lecture.description AS description',
         'lecture.thumbnail AS thumbnail',
         'lecture.teacherName AS teacher_nickname',
@@ -98,6 +99,7 @@ export class LecturesService {
         responseLectures.push({
           id: lecture.id,
           title: lecture.title,
+          images: lecture.images,
           description: lecture.description,
           thumbnail: lecture.thumbnail,
           teacher_nickname: lecture.teacher_nickname,
