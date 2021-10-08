@@ -210,7 +210,6 @@ export class LecturesService {
       })
       .select(['student_lecture.status AS status'])
       .getRawOne();
-    const status = !student || !student.status ? null : student.status;
     const lecture = await this.lecturesRepository
       .createQueryBuilder('lecture')
       .where('lecture.id = :lectureId', { lectureId: +pathParam.lectureId })
@@ -226,6 +225,14 @@ export class LecturesService {
         'lecture.videoUrl AS video_url',
       ])
       .getRawOne();
+    const currentTimestamp = new Date().toISOString();
+    const expiredTimestamp = new Date(lecture.expired).toISOString();
+    const status =
+      !student || !student.status
+        ? null
+        : expiredTimestamp < currentTimestamp
+        ? 'expired'
+        : student.status;
     const notices = await this.lectureNoticesRepository
       .createQueryBuilder('lecture_notice')
       .innerJoin('lecture_notice.lecture', 'lecture')
@@ -308,7 +315,6 @@ export class LecturesService {
       })
       .select(['student_lecture.status AS status'])
       .getRawOne();
-    const status = !student.status ? null : student.status;
     const lecture = await this.lecturesRepository
       .createQueryBuilder('lecture')
       .where('lecture.id = :lectureId', { lectureId: +pathParam.lectureId })
@@ -324,6 +330,14 @@ export class LecturesService {
         'lecture.videoUrl AS video_url',
       ])
       .getRawOne();
+    const currentTimestamp = new Date().toISOString();
+    const expiredTimestamp = new Date(lecture.expired).toISOString();
+    const status =
+      !student || !student.status
+        ? null
+        : expiredTimestamp < currentTimestamp
+        ? 'expired'
+        : student.status;
     const tags = await this.lectureTagsRepository
       .createQueryBuilder('lecture_tag')
       .innerJoin('lecture_tag.lecture', 'lecture')
@@ -389,12 +403,19 @@ export class LecturesService {
           .select(['tag.id AS id', 'tag.name AS name'])
           .orderBy('tag.name', 'DESC')
           .getRawMany();
+        const currentTimestamp = new Date().toISOString();
+        const expiredTimestamp = new Date(lecture.expired).toISOString();
+        const status = !lecture.status
+          ? null
+          : expiredTimestamp < currentTimestamp
+          ? 'expired'
+          : lecture.status;
         responseApprovedLectures.push({
           id: lecture.id,
           title: lecture.title,
           thumbnail: lecture.thumbnail,
           teacher_nickname: lecture.teacher_nickname,
-          status: lecture.status,
+          status,
           expired: lecture.expired,
           tags,
         });
