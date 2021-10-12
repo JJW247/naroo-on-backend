@@ -5,7 +5,7 @@ const CONST_RESOURCE_TYPE = {
   ADMIN_EMAIL: 'admin_email',
   HEADER_LOGO: 'header_logo',
   FOOTER_LOGO: 'footer_logo',
-  NOTICE_CAROUSEL: 'notice_carousel',
+  INFO_BANNER: 'info_banner',
   ORG_CAROUSEL: 'org_carousel',
 } as const;
 
