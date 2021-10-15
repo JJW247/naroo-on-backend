@@ -1,4 +1,10 @@
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class RequestUpdateLectureInfoDto {
   @IsString()
@@ -21,9 +27,13 @@ export class RequestUpdateLectureInfoDto {
   @IsOptional()
   teacherName: string;
 
-  @IsString({ each: true })
-  @IsOptional({ each: true })
-  img_description: { index: string; image: string };
+  @IsString()
+  @IsNotEmpty()
+  img_description_index: string;
+
+  @IsString()
+  @IsOptional()
+  img_description: string;
 
   @IsString()
   @IsOptional()

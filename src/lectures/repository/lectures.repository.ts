@@ -49,11 +49,10 @@ export class LecturesRepository extends Repository<Lecture> {
       : existLecture.teacherName;
     if (
       requestUpdateLectureInfoDto.img_description &&
-      requestUpdateLectureInfoDto.img_description.index &&
-      requestUpdateLectureInfoDto.img_description.image
+      requestUpdateLectureInfoDto.img_description_index
     ) {
-      existLecture.images[requestUpdateLectureInfoDto.img_description.index] =
-        requestUpdateLectureInfoDto.img_description.image;
+      existLecture.images[+requestUpdateLectureInfoDto.img_description_index] =
+        requestUpdateLectureInfoDto.img_description;
     }
     existLecture.videoTitle = requestUpdateLectureInfoDto.video_title
       ? requestUpdateLectureInfoDto.video_title
