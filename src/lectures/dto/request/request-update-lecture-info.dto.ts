@@ -23,7 +23,7 @@ export class RequestUpdateLectureInfoDto {
 
   @IsString({ each: true })
   @IsOptional({ each: true })
-  images: string[];
+  img_description: { index: string; image: string };
 
   @IsString()
   @IsOptional()
