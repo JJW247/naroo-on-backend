@@ -1,3 +1,4 @@
+import { isArray } from 'lodash';
 import { EntityRepository, Repository } from 'typeorm';
 import { RequestCreateLectureDto } from '../dto/request/request-create-lecture.dto';
 import { RequestLectureIdDto } from '../dto/request/request-lecture-id.dto';
@@ -46,6 +47,11 @@ export class LecturesRepository extends Repository<Lecture> {
     existLecture.teacherName = requestUpdateLectureInfoDto.teacherName
       ? requestUpdateLectureInfoDto.teacherName
       : existLecture.teacherName;
+    existLecture.images = isArray(requestUpdateLectureInfoDto.images)
+      ? requestUpdateLectureInfoDto.images.length > 0
+        ? requestUpdateLectureInfoDto.images
+        : existLecture.images
+      : existLecture.images;
     existLecture.videoTitle = requestUpdateLectureInfoDto.video_title
       ? requestUpdateLectureInfoDto.video_title
       : existLecture.videoTitle;
