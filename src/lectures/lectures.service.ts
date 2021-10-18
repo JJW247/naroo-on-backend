@@ -228,10 +228,10 @@ export class LecturesService {
     const currentTimestamp = new Date().toISOString();
     const expiredTimestamp = new Date(lecture.expired).toISOString();
     const status =
-      !student || !student.status
-        ? null
-        : expiredTimestamp < currentTimestamp
+      expiredTimestamp < currentTimestamp
         ? 'expired'
+        : !student || !student.status
+        ? null
         : student.status;
     const notices = await this.lectureNoticesRepository
       .createQueryBuilder('lecture_notice')
