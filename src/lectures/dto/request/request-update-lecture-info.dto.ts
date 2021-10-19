@@ -28,7 +28,7 @@ export class RequestUpdateLectureInfoDto {
   teacherName: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   img_description_index: string;
 
   @IsString()
