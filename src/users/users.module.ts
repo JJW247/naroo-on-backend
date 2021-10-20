@@ -8,6 +8,9 @@ import { JwtStrategy } from 'src/users/strategy/jwt.strategy';
 import { UsersRepository } from './repository/users.repository';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { config } from 'dotenv';
+
+config();
 
 @Module({
   imports: [
@@ -27,7 +30,6 @@ import { UsersService } from './users.service';
         service: 'Mailgun',
         host: process.env.MAILGUN_HOST,
         port: +process.env.MAILGUN_PORT,
-        secure: true,
         auth: {
           user: process.env.MAILGUN_USER,
           pass: process.env.MAILGUN_PASS,

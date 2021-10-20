@@ -29,17 +29,14 @@ export class UsersRepository extends Repository<User> {
     return student;
   }
 
-  async findAllStudents(user: User) {
-    const students = await this.find({
-      where: {
-        role: CONST_ROLE_TYPE.STUDENT,
-      },
-      select: ['id', 'email', 'nickname', 'phone'],
+  async findAllUsers(user: User) {
+    const users = await this.find({
+      select: ['id', 'email', 'nickname', 'phone', 'role'],
     });
-    if (students.length === 0) {
+    if (users.length === 0) {
       return null;
     }
-    return students;
+    return users;
   }
 
   async updateUserInfo(

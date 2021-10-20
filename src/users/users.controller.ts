@@ -49,10 +49,10 @@ export class UsersController {
     return this.usersService.getMyInfo(user);
   }
 
-  @Get('/admin/student')
+  @Get('/admin/user')
   @UseGuards(AdminUserGuard)
-  findAllStudents(@GetUser() user: User) {
-    return this.usersService.findAllStudents(user);
+  findAllUsers(@GetUser() user: User) {
+    return this.usersService.findAllUsers(user);
   }
 
   @Put('/admin/:userId')

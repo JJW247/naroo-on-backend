@@ -101,11 +101,12 @@ export class UsersService {
   }
 
   async sendVerifyEmail(user: User) {
+    console.log(user.email);
     await this.mailerService.sendMail({
       to: user.email,
       from: this.configService.get<string>('MAILGUN_USER'),
       subject:
-        '마포런 회원이 되신 것을 축하합니다! 링크 접속을 통해 이메일 인증 요청을 완료해주세요!',
+        '나루온 회원이 되신 것을 축하합니다! 링크 접속을 통해 이메일 인증 요청을 완료해주세요!',
       html: `<a href="${process.env.FRONT_URL}/verify/${user.verifyToken}">이메일 인증하기</a>`,
     });
   }
@@ -141,8 +142,8 @@ export class UsersService {
     return this.usersRepository.getMyInfo(user);
   }
 
-  findAllStudents(user: User) {
-    return this.usersRepository.findAllStudents(user);
+  findAllUsers(user: User) {
+    return this.usersRepository.findAllUsers(user);
   }
 
   updateUserInfo(
