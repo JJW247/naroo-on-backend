@@ -8,6 +8,7 @@ import { SignInDto } from './dto/signIn.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { v4 as UUID } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -40,20 +41,21 @@ export class UsersService {
       );
     }
 
-    const verifyToken: number =
-      Math.floor(Math.random() * (9999999999 - 1111111111 + 1)) + 1111111111;
+    const verifyToken = UUID();
 
-    const user = await this.usersRepository.save({
+    const user = this.usersRepository.create({
       email: signUpDto.email,
       nickname: signUpDto.nickname,
       password: hashedPassword,
       phone: signUpDto.phone,
       isAgreeEmail: signUpDto.isAgreeEmail === 'true' ? true : false,
       isAuthorized: false,
-      verifyToken: verifyToken.toString(),
+      verifyToken: verifyToken,
     });
 
     await this.sendVerifyEmail(user);
+
+    await this.usersRepository.save(user);
 
     return user;
   }

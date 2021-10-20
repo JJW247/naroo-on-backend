@@ -27,6 +27,7 @@ import { UsersService } from './users.service';
         service: 'Mailgun',
         host: process.env.MAILGUN_HOST,
         port: +process.env.MAILGUN_PORT,
+        secure: true,
         auth: {
           user: process.env.MAILGUN_USER,
           pass: process.env.MAILGUN_PASS,
