@@ -3,12 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ROLE_TYPE, User } from './entity/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from './repository/users.repository';
-import { SignUpDto } from './dto/signUp.dto';
-import { SignInDto } from './dto/signIn.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { SignInDto } from './dto/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { v4 as UUID } from 'uuid';
+import { InitPasswordDto } from './dto/init-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -101,7 +102,6 @@ export class UsersService {
   }
 
   async sendVerifyEmail(user: User) {
-    console.log(user.email);
     await this.mailerService.sendMail({
       to: user.email,
       from: this.configService.get<string>('MAILGUN_USER'),
@@ -132,6 +132,38 @@ export class UsersService {
     const token = this.jwtService.sign({ id: user.id });
 
     return { token };
+  }
+
+  async sendInitPassword(initPasswordDto: InitPasswordDto) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        email: initPasswordDto.email,
+        nickname: initPasswordDto.nickname,
+        phone: initPasswordDto.phone,
+      },
+    });
+
+    if (!user)
+      throw new HttpException(
+        '계정을 찾을 수 없습니다!',
+        HttpStatus.UNAUTHORIZED,
+      );
+
+    const randomPassword = UUID().substr(0, 16);
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+    user.password = hashedPassword;
+
+    await this.mailerService.sendMail({
+      to: user.email,
+      from: this.configService.get<string>('MAILGUN_USER'),
+      subject: '나루온 비밀번호 재설정 메일',
+      html: `<div><p>${user.nickname} / ${user.email} 계정의 초기화된 비밀번호는 ${randomPassword} 입니다!</p><p>로그인하신 후 반드시 비밀번호를 재설정해주세요!</p></div>`,
+    });
+
+    await this.usersRepository.save(user);
+
+    return user;
   }
 
   getMe(user: User) {

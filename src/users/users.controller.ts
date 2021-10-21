@@ -12,11 +12,12 @@ import {
 import { JwtAuthGuard } from './guard/jwt.guard';
 import { UsersService } from './users.service';
 import { ROLE_TYPE, User } from './entity/user.entity';
-import { SignUpDto } from './dto/signUp.dto';
-import { SignInDto } from './dto/signIn.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { SignInDto } from './dto/sign-in.dto';
 import { GetUser } from './decorator/get-user.decorator';
 import { AdminUserGuard } from './guard/admin-user.guard';
 import { StudentUserGuard } from './guard/student-user.guard';
+import { InitPasswordDto } from './dto/init-password.dto';
 
 @Controller('user')
 export class UsersController {
@@ -35,6 +36,11 @@ export class UsersController {
   @Get('verify')
   verifyCode(@Query() param: { requestToken: string }) {
     return this.usersService.verifyCode(param);
+  }
+
+  @Post('/init')
+  sendInitPassword(@Body() initPasswordDto: InitPasswordDto) {
+    return this.usersService.sendInitPassword(initPasswordDto);
   }
 
   @Get('/me')
