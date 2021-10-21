@@ -85,6 +85,9 @@ export class ResourcesService {
         type: param.type,
       },
       select: ['content'],
+      order: {
+        content_id: 'ASC',
+      },
     });
   }
 

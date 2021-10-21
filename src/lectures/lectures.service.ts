@@ -26,6 +26,9 @@ import { RequestTitleDescriptionDto } from './dto/request/request-title-descript
 import { RequestCreateAnswerDto } from './dto/request/request-create-answer.dto';
 import { Answer } from './entity/answer.entity';
 import { RequestAnswerIdDto } from './dto/request/request-answer-id.dto';
+import { RequestUpdateNoticeDto } from './dto/request/request-update-notice.dto';
+import { RequestNoticeIdDto } from './dto/request/request-notice-id.dto';
+import { title } from 'process';
 
 @Injectable()
 export class LecturesService {
@@ -697,6 +700,35 @@ export class LecturesService {
       id: +queryParam.id,
     });
     return result.affected === 1 ? { ok: true } : { ok: false };
+  }
+
+  async updateNotice(
+    pathParam: RequestLectureIdDto,
+    queryParam: RequestNoticeIdDto,
+    requestUpdateNoticeDto: RequestUpdateNoticeDto,
+  ) {
+    console.log(pathParam);
+    console.log(queryParam);
+    const notice = await this.lectureNoticesRepository.findOne({
+      where: {
+        lecture: +pathParam.lectureId,
+        id: +queryParam.notice_id,
+      },
+    });
+    if (!notice) {
+      throw new HttpException(
+        '존재하지 않는 공지사항입니다!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    notice.title = requestUpdateNoticeDto.title;
+    notice.description = requestUpdateNoticeDto.description;
+    return await this.lectureNoticesRepository.save({
+      id: +queryParam.notice_id,
+      lecture: { id: +pathParam.lectureId },
+      title: requestUpdateNoticeDto.title,
+      description: requestUpdateNoticeDto.description,
+    });
   }
 
   async createQuestion(

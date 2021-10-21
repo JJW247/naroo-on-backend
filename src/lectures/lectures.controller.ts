@@ -27,6 +27,8 @@ import { RequestRegisterTagDto } from './dto/request/request-register-tag.dto';
 import { RequestTitleDescriptionDto } from './dto/request/request-title-description.dto';
 import { RequestCreateAnswerDto } from './dto/request/request-create-answer.dto';
 import { RequestAnswerIdDto } from './dto/request/request-answer-id.dto';
+import { RequestUpdateNoticeDto } from './dto/request/request-update-notice.dto';
+import { RequestNoticeIdDto } from './dto/request/request-notice-id.dto';
 
 @Controller('lecture')
 export class LecturesController {
@@ -201,6 +203,20 @@ export class LecturesController {
     return this.lecturesService.deleteNotice(pathParam, queryParam);
   }
 
+  @Put('/admin/notice/modify/:lectureId')
+  @UseGuards(AdminUserGuard)
+  updateNotice(
+    @Param() pathParam: RequestLectureIdDto,
+    @Query() queryParam: RequestNoticeIdDto,
+    @Body() requestTitleDescriptionDto: RequestTitleDescriptionDto,
+  ) {
+    return this.lecturesService.updateNotice(
+      pathParam,
+      queryParam,
+      requestTitleDescriptionDto,
+    );
+  }
+
   @Post('/question/:lectureId')
   @UseGuards(StudentUserGuard)
   createQuestion(
@@ -208,7 +224,6 @@ export class LecturesController {
     @GetUser() user: User,
     @Body() requestTitleDescriptionDto: RequestTitleDescriptionDto,
   ) {
-    console.log(requestTitleDescriptionDto);
     return this.lecturesService.createQuestion(
       pathParam,
       user,
