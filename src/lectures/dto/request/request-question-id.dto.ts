@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class RequestAnswerIdDto {
+export class RequestQuestionIdDto {
   @IsString()
   @IsNotEmpty()
-  answer_id: string;
+  question_id: string;
 }

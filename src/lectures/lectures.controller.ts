@@ -27,8 +27,8 @@ import { RequestRegisterTagDto } from './dto/request/request-register-tag.dto';
 import { RequestTitleDescriptionDto } from './dto/request/request-title-description.dto';
 import { RequestCreateAnswerDto } from './dto/request/request-create-answer.dto';
 import { RequestAnswerIdDto } from './dto/request/request-answer-id.dto';
-import { RequestUpdateNoticeDto } from './dto/request/request-update-notice.dto';
 import { RequestNoticeIdDto } from './dto/request/request-notice-id.dto';
+import { RequestQuestionIdDto } from './dto/request/request-question-id.dto';
 
 @Controller('lecture')
 export class LecturesController {
@@ -169,7 +169,7 @@ export class LecturesController {
   @UseGuards(AdminUserGuard)
   unregisterTag(
     @Param() pathParam: RequestLectureIdDto,
-    @Query() queryParam: { id: number },
+    @Query() queryParam: RequestTagIdDto,
   ) {
     return this.lecturesService.unregisterTag(pathParam, queryParam);
   }
@@ -198,7 +198,7 @@ export class LecturesController {
   @UseGuards(AdminUserGuard)
   deleteNotice(
     @Param() pathParam: RequestLectureIdDto,
-    @Query() queryParam: { id: number },
+    @Query() queryParam: RequestNoticeIdDto,
   ) {
     return this.lecturesService.deleteNotice(pathParam, queryParam);
   }
@@ -231,13 +231,30 @@ export class LecturesController {
     );
   }
 
-  @Delete('/admin/question/:lectureId')
-  @UseGuards(AdminUserGuard)
+  @Delete('/question/:lectureId')
+  @UseGuards(JwtAuthGuard)
   deleteQuestion(
     @Param() pathParam: RequestLectureIdDto,
-    @Query() queryParam: { id: number },
+    @GetUser() user: User,
+    @Query() queryParam: RequestQuestionIdDto,
   ) {
-    return this.lecturesService.deleteQuestion(pathParam, queryParam);
+    return this.lecturesService.deleteQuestion(pathParam, user, queryParam);
+  }
+
+  @Put('/question/modify/:lectureId')
+  @UseGuards(JwtAuthGuard)
+  updateQuestion(
+    @Param() pathParam: RequestLectureIdDto,
+    @GetUser() user: User,
+    @Query() queryParam: RequestQuestionIdDto,
+    @Body() requestTitleDescriptionDto: RequestTitleDescriptionDto,
+  ) {
+    return this.lecturesService.updateQuestion(
+      pathParam,
+      user,
+      queryParam,
+      requestTitleDescriptionDto,
+    );
   }
 
   @Post('/admin/answer')
@@ -246,9 +263,23 @@ export class LecturesController {
     return this.lecturesService.createAnswer(requestCreateAnswerDto);
   }
 
-  @Delete('/admin/answer/:answerId')
+  @Delete('/admin/answer/:answer_id')
   @UseGuards(AdminUserGuard)
   deleteAnswer(@Param() pathParam: RequestAnswerIdDto) {
     return this.lecturesService.deleteAnswer(pathParam);
+  }
+
+  @Put('/admin/answer/modify/:question_id')
+  @UseGuards(AdminUserGuard)
+  updateAnswer(
+    @Param() pathParam: RequestQuestionIdDto,
+    @Query() queryParam: RequestAnswerIdDto,
+    @Body() requestTitleDescriptionDto: RequestTitleDescriptionDto,
+  ) {
+    return this.lecturesService.updateAnswer(
+      pathParam,
+      queryParam,
+      requestTitleDescriptionDto,
+    );
   }
 }
