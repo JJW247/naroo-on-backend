@@ -164,26 +164,6 @@ export class LecturesService {
         status: CONST_LECTURE_STATUS.ACCEPT,
       })
       .getCount();
-    // const qnas = await this.questionsRepository
-    //   .createQueryBuilder('question')
-    //   .innerJoin('question.lecture', 'lecture')
-    //   .innerJoin('question.student', 'student')
-    //   .leftJoin('question.answer', 'answer')
-    //   .where('lecture.id = :lectureId', { lectureId: +pathParam.lectureId })
-    //   .select([
-    //     'question.id AS question_id',
-    //     'answer.id AS answer_id',
-    //     'student.id AS creator_id',
-    //     'student.nickname AS creator_nickname',
-    //     'question.createdAt AS question_created_at',
-    //     'question.title AS question_title',
-    //     'question.description AS question_description',
-    //     'answer.createdAt AS answer_created_at',
-    //     'answer.title AS answer_title',
-    //     'answer.description AS answer_description',
-    //   ])
-    //   .orderBy('question.createdAt', 'DESC')
-    //   .getRawMany();
     return {
       id: lecture.id,
       title: lecture.title,
