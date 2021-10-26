@@ -141,7 +141,7 @@ export class LecturesController {
     return this.lecturesService.readTags(pathParam);
   }
 
-  @Put('/admin/tag/:tagId')
+  @Put('/admin/tag/:tag_id')
   @UseGuards(AdminUserGuard)
   updateTag(
     @Param() pathParam: RequestTagIdDto,
@@ -150,7 +150,7 @@ export class LecturesController {
     return this.lecturesService.updateTag(pathParam, requestTagNameDto);
   }
 
-  @Delete('/admin/tag/:tagId')
+  @Delete('/admin/tag/:tag_id')
   @UseGuards(AdminUserGuard)
   deleteTag(@Param() pathParam: RequestTagIdDto) {
     return this.lecturesService.deleteTag(pathParam);
