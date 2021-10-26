@@ -27,12 +27,12 @@ config();
     }),
     MailerModule.forRoot({
       transport: {
-        service: 'Mailgun',
-        host: process.env.MAILGUN_HOST,
-        port: +process.env.MAILGUN_PORT,
+        service: process.env.MAILER_SERVICE,
+        host: process.env.MAILER_HOST,
+        port: +process.env.MAILER_PORT,
         auth: {
-          user: process.env.MAILGUN_USER,
-          pass: process.env.MAILGUN_PASS,
+          user: process.env.MAILER_USER,
+          pass: process.env.MAILER_PASS,
         },
       },
     }),

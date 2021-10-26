@@ -104,7 +104,7 @@ export class UsersService {
   async sendVerifyEmail(user: User) {
     await this.mailerService.sendMail({
       to: user.email,
-      from: this.configService.get<string>('MAILGUN_USER'),
+      from: this.configService.get<string>('MAILER_USER'),
       subject:
         '나루온 회원이 되신 것을 축하합니다! 링크 접속을 통해 이메일 인증 요청을 완료해주세요!',
       html: `<a href="${process.env.FRONT_URL}/verify/${user.verifyToken}">이메일 인증하기</a>`,
@@ -156,7 +156,7 @@ export class UsersService {
 
     await this.mailerService.sendMail({
       to: user.email,
-      from: this.configService.get<string>('MAILGUN_USER'),
+      from: this.configService.get<string>('MAILER_USER'),
       subject: '나루온 비밀번호 재설정 메일',
       html: `<div><p>${user.nickname} / ${user.email} 계정의 초기화된 비밀번호는 ${randomPassword} 입니다!</p><p>로그인하신 후 반드시 비밀번호를 재설정해주세요!</p></div>`,
     });
