@@ -15,6 +15,7 @@ export const CONST_LECTURE_STATUS = {
   REJECT: 'reject',
   INVISIBLE: 'invisible',
   ACCEPT: 'accept',
+  VISIBLE: null,
 } as const;
 
 export type LECTURE_STATUS =
