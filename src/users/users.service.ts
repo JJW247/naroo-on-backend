@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ROLE_TYPE, User } from './entity/user.entity';
+import { CONST_ROLE_TYPE, ROLE_TYPE, User } from './entity/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from './repository/users.repository';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -19,7 +19,27 @@ export class UsersService {
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) {
+    this.createAdminUser();
+  }
+
+  async createAdminUser() {
+    const existAdminUser = await this.usersRepository.findOne({
+      where: { role: CONST_ROLE_TYPE.ADMIN },
+    });
+    if (existAdminUser === undefined) {
+      const hashedPassword = await bcrypt.hash('abcd1234!', 10);
+      await this.usersRepository.save({
+        email: 'admin@test.com',
+        nickname: '관리자',
+        password: hashedPassword,
+        phone: '010-0000-0000',
+        isAgreeEmail: true,
+        isAuthorized: true,
+        verifyToken: null,
+      });
+    }
+  }
 
   async signUp(signUpDto: SignUpDto) {
     const hashedPassword = await bcrypt.hash(signUpDto.password, 10);
