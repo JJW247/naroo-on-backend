@@ -30,6 +30,7 @@ export class UsersService {
     if (existAdminUser === undefined) {
       const hashedPassword = await bcrypt.hash('abcd1234!', 10);
       await this.usersRepository.save({
+        role: CONST_ROLE_TYPE.ADMIN,
         email: 'admin@test.com',
         nickname: '관리자',
         password: hashedPassword,
